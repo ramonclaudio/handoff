@@ -275,6 +275,7 @@ This lets you:
 
 ## Requirements
 
+- **Claude Code 1.0.33+** (run `claude --version` to check)
 - Git
 - GitHub CLI (`gh`) for PR details (optional)
 - Linear MCP plugin for issue tracking (optional)
