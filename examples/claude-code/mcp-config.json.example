@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "handoff": {
+      "command": "node",
+      "args": ["/path/to/handoff-mcp-server/index.js"],
+      "env": {
+        "HANDOFF_DIR": ".handoff"
+      }
+    }
+  }
+}

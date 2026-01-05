@@ -37,6 +37,20 @@ mkdir -p .claude/skills
 cp -r examples/claude-code/skills/* .claude/skills/
 ```
 
+### 4. Install Agent (optional)
+
+```bash
+# Copy handoff manager agent
+cp examples/claude-code/agents/handoff-manager.md ~/.claude/agents/
+```
+
+### 5. Install Output Style (optional)
+
+```bash
+# Copy handoff-aware output style
+cp examples/claude-code/output-styles/handoff-aware.md ~/.claude/output-styles/
+```
+
 ## Usage
 
 ### CLI Wrapper
@@ -94,8 +108,27 @@ Skills are automatically invoked when relevant:
 ├── skills/
 │   ├── handoff-start.md     # START workflow skill
 │   └── handoff-end.md       # END workflow skill
+├── agents/
+│   └── handoff-manager.md   # Handoff management agent
+├── output-styles/
+│   └── handoff-aware.md     # Context-aware output style
 └── hooks/
-    └── (optional hooks)
+    └── session-start.json   # Session reminder hook
+```
+
+## Example Files in This Directory
+
+```
+examples/claude-code/
+├── README.md                # This file
+├── CLAUDE.md.example        # Project instructions template
+├── settings.json.example    # Recommended settings
+├── mcp-config.json.example  # MCP server config (future)
+├── commands/                # Slash commands
+├── skills/                  # Auto-invoked skills
+├── agents/                  # Custom agents
+├── output-styles/           # Custom output styles
+└── hooks/                   # Session hooks
 ```
 
 ## Parallel Agent Workflow
