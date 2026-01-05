@@ -14,7 +14,7 @@
 - **Open PR:** none | #N (link)
 
 ### Recent Commits
-```
+```text
 # Output of: git log -10 --format='%h %s%n%b---'
 abc1234 feat: add user authentication
 
