@@ -251,41 +251,70 @@ your-project/
 
 ## Examples
 
-### Shell Scripts
+### CLI Wrapper (Recommended for Claude Code)
 
-Basic scripts for any AI assistant:
+Install the `handoff` CLI for seamless integration:
 
 ```bash
-# Initialize handoff in a project
-./examples/scripts/handoff-init.sh
+# Install globally
+cp cli/handoff /usr/local/bin/
+chmod +x /usr/local/bin/handoff
 
-# Run at session start (outputs context to paste)
-./examples/scripts/handoff-start.sh
-
-# Run at session end (archives and outputs state)
-./examples/scripts/handoff-end.sh
+# Use it
+handoff                          # Start claude with handoff context
+handoff --resume my-feature      # Resume session with handoff
+handoff --init                   # Initialize handoff in project
+handoff --end                    # Archive and update at session end
+handoff --status                 # Quick status check
 ```
 
-### Claude Code
+### Slash Commands (Claude Code)
 
-Optimized implementation using parallel background agents:
+Copy commands for `/handoff start` and `/handoff end`:
 
-- `examples/claude-code/skills/handoff-start.md` - START workflow skill
-- `examples/claude-code/skills/handoff-end.md` - END workflow skill
-- `examples/claude-code/CLAUDE.md.example` - Project instructions template
+```bash
+# Global (all projects)
+cp -r examples/claude-code/commands/* ~/.claude/commands/
 
-**Key features:**
-- 4 parallel agents at START, 5 at END
-- Sonnet for data fetching, Opus for reasoning
-- Full commit messages and PR bodies
-- Automatic polling and aggregation
+# Project-specific
+mkdir -p .claude/commands
+cp -r examples/claude-code/commands/* .claude/commands/
+```
+
+Then in Claude Code:
 
 ```
-# Copy skills to your project
-cp -r examples/claude-code/skills .claude/
+/handoff start           # Gather context with parallel agents
+/handoff end             # Archive and update handoff
+/handoff status          # Quick status check
+```
 
-# Add to your CLAUDE.md
-cat examples/claude-code/CLAUDE.md.example >> CLAUDE.md
+### Skills (Claude Code)
+
+Copy skills for automatic invocation:
+
+```bash
+cp -r examples/claude-code/skills/* ~/.claude/skills/
+```
+
+Skills are triggered automatically based on context.
+
+### Shell Scripts (Any AI Tool)
+
+Basic scripts that output context to paste:
+
+```bash
+./examples/scripts/handoff-init.sh    # Initialize
+./examples/scripts/handoff-start.sh   # Gather context
+./examples/scripts/handoff-end.sh     # Archive + state
+```
+
+### Hooks (Claude Code)
+
+Add session start reminder:
+
+```bash
+cp examples/claude-code/hooks/session-start.json ~/.claude/hooks/
 ```
 
 ### Custom Integrations
@@ -295,7 +324,7 @@ The pattern works with any AI assistant that supports:
 - Reading/writing files
 - Some form of task parallelization (optional but faster)
 
-Adapt the workflow to your tool's capabilities.
+See `examples/` for implementation patterns.
 
 ## Contributing
 
