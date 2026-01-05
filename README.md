@@ -17,6 +17,25 @@ Handoff solves this with two markdown files that capture everything needed to co
 /plugin install handoff@ramonclaudio-handoff
 ```
 
+**Team installation** (auto-prompt teammates):
+
+Add to your project's `.claude/settings.json`:
+```json
+{
+  "extraKnownMarketplaces": {
+    "ramonclaudio-handoff": {
+      "source": {
+        "source": "github",
+        "repo": "ramonclaudio/handoff"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "handoff@ramonclaudio-handoff": true
+  }
+}
+```
+
 **Local development**:
 ```bash
 git clone https://github.com/ramonclaudio/handoff.git ~/Developer/handoff
