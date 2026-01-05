@@ -8,25 +8,19 @@ Handoff solves this with two markdown files that capture everything needed to co
 
 ## Installation
 
-**From marketplace** (when published):
-```
-/plugin install ramonclaudio/handoff
+**Via marketplace** (recommended):
+```bash
+# Add the marketplace
+/plugin marketplace add ramonclaudio/handoff
+
+# Install the plugin
+/plugin install handoff@ramonclaudio-handoff
 ```
 
 **Local development**:
 ```bash
 git clone https://github.com/ramonclaudio/handoff.git ~/Developer/handoff
 claude --plugin-dir ~/Developer/handoff
-```
-
-**Persistent install**:
-```bash
-# Clone to a permanent location
-git clone https://github.com/ramonclaudio/handoff.git ~/.local/share/claude-plugins/handoff
-
-# Add alias to ~/.zshrc or ~/.bashrc
-echo 'alias claude="claude --plugin-dir ~/.local/share/claude-plugins/handoff"' >> ~/.zshrc
-source ~/.zshrc
 ```
 
 ## Quick Start

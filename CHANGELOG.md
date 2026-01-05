@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-01-05
+
+### Added
+- `marketplace.json` for proper plugin distribution via `/plugin marketplace add`
+
+### Fixed
+- README install instructions now use correct marketplace syntax
+
 ## [1.0.0] - 2025-01-05
 
 ### Added
