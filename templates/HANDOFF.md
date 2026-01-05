@@ -1,82 +1,98 @@
-# HANDOFF: <project-name>
+# Handoff: Project Name
 
 > Session: YYYY-MM-DD HH:MM
-> Task: <what we're working on>
-> Linear: RAY-xxx (if applicable)
+> Task: What we're working on
+> Issue: #123 or PROJ-123 (if applicable)
 
-## STATUS: IN PROGRESS | BLOCKED | IDLE
+## Status: IN PROGRESS | BLOCKED | IDLE
 
-## GIT STATE
+## Git State
 
 - **Branch:** main | feature/branch-name
-- **Status:** clean | N uncommitted
-- **Stash:** none | N stashed
-- **PR:** none | #N (url)
+- **Status:** clean | X uncommitted changes
+- **Stash:** none | X stashed
+- **Open PR:** none | #N (link)
 
-### Recent Commits (with full messages)
+### Recent Commits
 ```
-<output of: git log -10 --format='%h %s%n%b---'>
+# Output of: git log -10 --format='%h %s%n%b---'
+abc1234 feat: add user authentication
+
+Implemented JWT-based auth with refresh tokens.
+Added login/logout endpoints.
+---
+def5678 fix: resolve database connection issue
+
+Connection was dropping due to pool exhaustion.
+Increased pool size and added keepalive.
+---
 ```
 
-### Recent PRs (with bodies)
-| PR | Title | Body Summary | Merged |
-|----|-------|--------------|--------|
-| #N | Title | Key points from body | Date |
+### Recent PRs
+| PR | Title | Summary | Merged |
+|----|-------|---------|--------|
+| #12 | Add authentication | JWT auth with refresh | 2024-01-15 |
+| #11 | Fix db connections | Pool size increase | 2024-01-14 |
 
-## LINEAR TASKS
+## Issue Tracker
 
-| Issue | Title | Description | Status |
-|-------|-------|-------------|--------|
-| RAY-xxx | Task title | Brief description | In Progress |
-| RAY-xxx | Task title | Brief description | Backlog |
+| Issue | Title | Status |
+|-------|-------|--------|
+| #45 | Implement user profile | In Progress |
+| #46 | Add email notifications | Backlog |
+| #47 | Performance optimization | Backlog |
 
-## DONE (This Session)
+## Done (This Session)
 
-- [x] Completed item with detail
-- [x] Another completed item
+- [x] Set up authentication middleware
+- [x] Created login/logout API endpoints
+- [x] Added JWT token generation
 
-## FAILED (DON'T RETRY)
+## Failed (Don't Retry)
 
-### ❌ <What was tried>
-- **Attempted:** Exact approach taken
-- **Error:** Error message or symptom
-- **Why:** Root cause analysis
-- **Tried also:** Other approaches attempted
-- **Would need:** What would have to change to work
-- **Workaround:** If any exists
+### ❌ Session storage with Redis
+- **Attempted:** Replaced in-memory sessions with Redis
+- **Error:** Connection timeouts under load
+- **Why:** Redis instance is in different region, latency too high
+- **Tried also:** Connection pooling, persistent connections
+- **Would need:** Redis instance in same region or switch to database sessions
+- **Workaround:** Using database sessions for now
 
-## IN PROGRESS
+## In Progress
 
-- [ ] Current half-done task
-  - What's done: ...
-  - What's left: ...
+- [ ] User profile page
+  - Done: API endpoint, database schema
+  - Left: Frontend form, image upload
 
-## DECISIONS
+## Decisions
 
 | Decision | Choice | Alternatives | Reasoning |
 |----------|--------|--------------|-----------|
-| How to do X | Option A | B, C | Because Y |
+| Session storage | Database | Redis, Memory | Redis latency issues (see Failed) |
+| Auth tokens | JWT | Session cookies | Need stateless for API |
 
-## FILES TOUCHED
+## Files Touched
 
 | File | Lines | What Changed |
 |------|-------|--------------|
-| path/file.ts | new | Created component |
-| path/other.ts | 45-60 | Added function |
-| path/third.ts | 12 | Fixed bug |
+| src/auth/middleware.ts | new | Auth middleware |
+| src/api/auth/login.ts | new | Login endpoint |
+| src/api/auth/logout.ts | new | Logout endpoint |
+| src/lib/jwt.ts | 12-45 | Token generation |
+| prisma/schema.prisma | 67-80 | User model updates |
 
-## RESUME
+## Resume
 
-**Next:** Exact next action (be specific, not vague)
-**Then:** What comes after that
-**Files to read:** file1.ts:45-60, file2.ts
-**Context needed:** Any background for next action
-**Blockers:** Anything blocking progress (or "none")
+**Next:** Create profile page component at `src/pages/profile.tsx`
+**Then:** Add image upload to profile using existing S3 utilities
+**Files to read:** `src/lib/s3.ts:20-40`, `src/components/ImageUpload.tsx`
+**Context:** S3 bucket is already configured, just need to wire up the upload
+**Blockers:** None
 
-## SESSION CHAIN (multi-session features)
+## Session Chain (for multi-session features)
 
 | Session | Progress |
 |---------|----------|
-| YYYY-MM-DD HH:MM | Started, did X |
-| YYYY-MM-DD HH:MM | Did Y, blocked on Z |
-| YYYY-MM-DD HH:MM | THIS SESSION |
+| 2024-01-14 10:00 | Started auth, set up JWT |
+| 2024-01-14 14:00 | Completed auth, started profile |
+| 2024-01-15 09:00 | THIS SESSION |
