@@ -1,6 +1,12 @@
 {
   "name": "ramonclaudio-handoff",
-  "description": "Session continuity plugin for AI coding assistants",
+  "owner": {
+    "name": "Ray",
+    "email": "ray@ramonclaudio.dev"
+  },
+  "metadata": {
+    "description": "Session continuity plugin for AI coding assistants"
+  },
   "plugins": [
     {
       "name": "handoff",
