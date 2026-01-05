@@ -11,7 +11,7 @@
     {
       "name": "handoff",
       "description": "Session continuity with parallel agent workflows for gathering context at start and archiving state at end",
-      "version": "1.0.2",
+      "version": "1.0.0",
       "source": "."
     }
   ]
