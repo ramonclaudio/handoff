@@ -1,74 +1,54 @@
 # Handoff
 
-> Session continuity for AI-assisted coding across context window limits.
+> Session continuity for AI coding assistants.
 
 ## The Problem
 
-AI coding assistants have context window limits. When you hit that limit mid-feature, the next session starts fresh. You lose:
+AI coding assistants have context limits. When you hit that limit mid-feature, the next session starts fresh. You lose:
 
-- What was tried and failed (so you retry the same broken approaches)
-- Decisions made and why (so you re-debate the same choices)
-- The exact resume point (so you waste time figuring out where you left off)
-- Which files were modified (so you re-read everything)
+- What was tried and failed
+- Decisions made and why
+- The exact resume point
+- Which files were modified
 
 ## The Solution
 
-Two markdown files per project that capture everything needed to continue seamlessly.
+Two markdown files that capture everything needed to continue seamlessly.
 
 ```
-your-project/
-├── CONTEXT.md     # Permanent: stack, commands, gotchas, patterns
-├── HANDOFF.md     # Session: git state, progress, failures, resume
-└── sessions/      # Archive: historical handoffs
+.handoff/
+├── CONTEXT.md     # Project knowledge (permanent)
+├── HANDOFF.md     # Session state (updated each session)
+└── sessions/      # Archive (optional)
 ```
 
-**CONTEXT.md** = "What is this project and how does it work"
-**HANDOFF.md** = "What happened and what's next"
+## Requirements
+
+- **AI coding assistant** with shell access (Claude Code, Cursor, Codex, etc.)
+- **Git** for version control
+- **GitHub CLI** (`gh`) for PR details
 
 ## Quick Start
 
-### 1. Create handoff directory in your project
-
 ```bash
+# Initialize in your project
+cd your-project
 mkdir -p .handoff/sessions
+
+# Copy templates (or download from this repo)
+curl -o .handoff/CONTEXT.md https://raw.githubusercontent.com/ramonclaudio/handoff/main/templates/CONTEXT.md
+curl -o .handoff/HANDOFF.md https://raw.githubusercontent.com/ramonclaudio/handoff/main/templates/HANDOFF.md
+
+# Or clone and copy
+git clone https://github.com/ramonclaudio/handoff.git /tmp/handoff
+cp /tmp/handoff/templates/*.md .handoff/
 ```
 
-Or keep it separate:
+Or use the CLI:
 ```bash
-mkdir -p ~/handoff/<project-name>/sessions
+cp handoff/cli/handoff /usr/local/bin/
+handoff --init
 ```
-
-### 2. Copy templates
-
-```bash
-cp templates/CONTEXT.md .handoff/
-cp templates/HANDOFF.md .handoff/
-```
-
-### 3. Fill in CONTEXT.md once
-
-- Project links (repo, issue tracker)
-- Stack with versions
-- Commands (dev, build, test)
-- Known gotchas ("What Never Works")
-- Architecture patterns
-
-### 4. Update HANDOFF.md each session
-
-**At session START:**
-- Get fresh git state
-- Get recent PRs/commits with full details
-- Read CONTEXT.md and HANDOFF.md
-- Continue from the RESUME point
-
-**At session END:**
-- Archive current HANDOFF.md to `sessions/`
-- Update HANDOFF.md with:
-  - What was done
-  - What failed (and why - so you don't retry)
-  - Decisions made
-  - Files touched
-  - Exact next action
 
 ## The Workflow
 
@@ -80,19 +60,22 @@ git log -10 --format='%h %s%n%b---'
 git status
 git diff --stat HEAD~5
 
-# Get PRs with FULL bodies (GitHub)
-gh pr list --state=open --json number,title,body,headRefName,commits
+# Get PRs with FULL bodies
+gh pr list --state=open --json number,title,body,headRefName
 gh pr list --state=merged --limit=5 --json number,title,body,mergedAt
 
 # Read context files
-# Then continue from RESUME point in HANDOFF.md
+cat .handoff/CONTEXT.md
+cat .handoff/HANDOFF.md
+
+# Continue from RESUME point
 ```
 
 ### DURING
 
-- Document failures **immediately** (not at end)
+- Document failures **immediately** (not at session end)
 - Record decisions with reasoning
-- Track files you modify with line numbers
+- Track files modified with line numbers
 
 ### END (Every Session End)
 
@@ -101,40 +84,34 @@ gh pr list --state=merged --limit=5 --json number,title,body,mergedAt
 cp .handoff/HANDOFF.md .handoff/sessions/$(date +%Y-%m-%d-%H%M).md
 
 # Update HANDOFF.md with:
-# - Fresh git state
+# - Fresh git state (branch, status, recent commits)
 # - What was done
-# - What failed
+# - What failed (and WHY)
 # - Decisions made
-# - Files touched
-# - Exact RESUME point
+# - Files touched with line numbers
+# - Exact RESUME point (specific next action)
 ```
 
 ## What Goes Where
 
-| Information | CONTEXT.md | HANDOFF.md |
-|-------------|------------|------------|
-| Project description | ✓ | |
-| Links (repo, issues) | ✓ | |
-| Stack versions | ✓ | |
-| Commands | ✓ | |
-| What never works | ✓ | |
-| Architecture patterns | ✓ | |
-| Current git state | | ✓ |
-| Recent commits/PRs | | ✓ |
-| Session progress | | ✓ |
-| Failures (detailed) | | ✓ |
-| Decisions made | | ✓ |
-| Files touched | | ✓ |
-| Resume point | | ✓ |
+| CONTEXT.md (permanent) | HANDOFF.md (per-session) |
+|------------------------|--------------------------|
+| Project description | Session timestamp |
+| Repository URL | Git state (branch, status) |
+| Stack versions | Recent commits (full messages) |
+| Commands (dev, build, test) | Recent PRs (full bodies) |
+| What never works | What was done |
+| Architecture patterns | What failed (detailed) |
+| Constraints/limits | Decisions made |
+| | Files touched |
+| | Exact resume point |
 
 ## Key Principles
 
 ### Get Full Details
 
-Don't just capture titles - get the full context:
-
 ```bash
-# Full commit messages (not just subject lines)
+# Full commit messages (not just subject)
 git log -10 --format='%h %s%n%b---'
 
 # PRs with full bodies
@@ -152,7 +129,7 @@ Good:
 ```
 ### ❌ JWT token refresh
 - **Attempted:** Added refresh logic in useAuth hook
-- **Error:** "Token expired" still appears after refresh
+- **Error:** Token expired still appears after refresh
 - **Why:** Refresh happens async, component re-renders before token updates
 - **Would need:** Suspense boundary or loading state during refresh
 ```
@@ -171,10 +148,61 @@ Good:
 **Context:** Token refresh is async, need to prevent render during refresh
 ```
 
+## CLI Usage
+
+```bash
+handoff                    # Start AI assistant with context
+handoff --resume NAME      # Resume named session
+handoff --init             # Initialize handoff in project
+handoff --start            # Gather context (output to paste)
+handoff --end              # Archive and gather final state
+handoff --status           # Quick status check
+handoff --dir PATH         # Use custom handoff directory
+```
+
+## Optional: Issue Tracker Integration
+
+Add your issue tracker queries to the workflow:
+
+**GitHub Issues:**
+```bash
+gh issue list --state open
+gh issue view 123
+```
+
+**Linear:**
+```
+mcp__plugin_linear_linear__list_issues project:"<name>"
+mcp__plugin_linear_linear__update_issue id:"XXX-123" state:"Done"
+```
+
+**Jira, Asana, etc.:** Add your own queries to the workflow.
+
+## For AI Assistants with Parallel Agents
+
+If your AI supports background tasks (like Claude Code), parallelize:
+
+**START (4 agents):**
+| Agent | Task |
+|-------|------|
+| 1 | Git state + full commit messages |
+| 2 | PRs with full bodies |
+| 3 | Issue tracker (if configured) |
+| 4 | Read and analyze context files |
+
+**END (5 agents):**
+| Agent | Task |
+|-------|------|
+| 1 | Git state + archive handoff |
+| 2 | Package version changes |
+| 3 | Issue tracker sync (if configured) |
+| 4 | Update HANDOFF.md |
+| 5 | Update CONTEXT.md if needed |
+
 ## Anti-Bloat Guidelines
 
 **DO include:**
-- Full commit messages (body, not just title)
+- Full commit messages (body, not just subject)
 - Full PR bodies
 - Specific failure details with root cause
 - Files with line numbers
@@ -190,149 +218,31 @@ Good:
 - CONTEXT.md: ~100-150 lines
 - HANDOFF.md: ~80-120 lines
 
-## For AI Assistants with Background Agents
+## Claude Code Integration
 
-If your AI assistant supports parallel background tasks, you can speed up the workflow:
+See `examples/claude-code/` for:
+- **CLI wrapper** - `handoff` command
+- **Slash commands** - `/handoff start`, `/handoff end`
+- **Skills** - Auto-invoked by context
+- **Agents** - Handoff management
+- **Hooks** - Session reminders
 
-**START - parallel data gathering:**
-```
-Agent 1: git state + commit details
-Agent 2: PR details with bodies
-Agent 3: Issue tracker status
-Agent 4: Read and analyze context files
-```
+```bash
+# Install slash commands
+cp -r examples/claude-code/commands/* ~/.claude/commands/
 
-**END - parallel updates:**
-```
-Agent 1: git state + archive handoff
-Agent 2: package version changes
-Agent 3: Issue tracker sync
-Agent 4: Update HANDOFF.md
-Agent 5: Update CONTEXT.md if needed
+# Use
+/handoff start
+/handoff end
 ```
 
 ## Works With
 
-- Claude (Anthropic)
-- ChatGPT (OpenAI)
+- Claude Code
 - Cursor
+- Codex
 - GitHub Copilot Chat
-- Any AI coding assistant with context limits
-
-## Directory Options
-
-**In-repo (recommended for solo projects):**
-```
-your-project/
-├── .handoff/
-│   ├── CONTEXT.md
-│   ├── HANDOFF.md
-│   └── sessions/
-└── src/
-```
-
-**Separate directory (for multiple projects or team use):**
-```
-~/handoff/
-├── project-a/
-│   ├── CONTEXT.md
-│   ├── HANDOFF.md
-│   └── sessions/
-└── project-b/
-    └── ...
-```
-
-**With Obsidian/notes app:**
-```
-~/Notes/projects/
-├── project-a/
-│   └── ...
-```
-
-## Examples
-
-### CLI Wrapper (Recommended for Claude Code)
-
-Install the `handoff` CLI for seamless integration:
-
-```bash
-# Install globally
-cp cli/handoff /usr/local/bin/
-chmod +x /usr/local/bin/handoff
-
-# Use it
-handoff                          # Start claude with handoff context
-handoff --resume my-feature      # Resume session with handoff
-handoff --init                   # Initialize handoff in project
-handoff --end                    # Archive and update at session end
-handoff --status                 # Quick status check
-```
-
-### Slash Commands (Claude Code)
-
-Copy commands for `/handoff start` and `/handoff end`:
-
-```bash
-# Global (all projects)
-cp -r examples/claude-code/commands/* ~/.claude/commands/
-
-# Project-specific
-mkdir -p .claude/commands
-cp -r examples/claude-code/commands/* .claude/commands/
-```
-
-Then in Claude Code:
-
-```
-/handoff start           # Gather context with parallel agents
-/handoff end             # Archive and update handoff
-/handoff status          # Quick status check
-```
-
-### Skills (Claude Code)
-
-Copy skills for automatic invocation:
-
-```bash
-cp -r examples/claude-code/skills/* ~/.claude/skills/
-```
-
-Skills are triggered automatically based on context.
-
-### Shell Scripts (Any AI Tool)
-
-Basic scripts that output context to paste:
-
-```bash
-./examples/scripts/handoff-init.sh    # Initialize
-./examples/scripts/handoff-start.sh   # Gather context
-./examples/scripts/handoff-end.sh     # Archive + state
-```
-
-### Hooks (Claude Code)
-
-Add session start reminder:
-
-```bash
-cp examples/claude-code/hooks/session-start.json ~/.claude/hooks/
-```
-
-### Custom Integrations
-
-The pattern works with any AI assistant that supports:
-- Running shell commands
-- Reading/writing files
-- Some form of task parallelization (optional but faster)
-
-See `examples/` for implementation patterns.
-
-## Contributing
-
-Contributions welcome! Ideas:
-- Examples for other AI tools (Cursor, Copilot, etc.)
-- Integrations with issue trackers (Linear, Jira, etc.)
-- GUI tools for managing handoffs
-- VS Code extension
+- Any AI assistant with git/shell access
 
 ## License
 
