@@ -88,16 +88,20 @@ Claude automatically applies this skill when:
 
 The skill reminds Claude to document failures properly, track files touched, and ensure clear resume points.
 
-### 4. Hook: SessionStart
+### 4. Hooks: SessionStart & SessionEnd
 
-**Invocation**: Automatic (runs when Claude Code starts)
+**Invocation**: Automatic (runs when Claude Code starts/ends)
 
-When a session starts, the hook:
+**SessionStart** hook:
 1. Checks for `.handoff/` or `~/obsidian/projects/<project>/`
-2. If found, injects a reminder into context about running `/handoff start`
+2. If found, injects a reminder to run `/handoff start`
 3. If not found, suggests running `/handoff init`
 
-You don't invoke this—it runs automatically.
+**SessionEnd** hook:
+1. Checks if handoff files exist
+2. If found, reminds to run `/handoff end` to save progress
+
+You don't invoke these—they run automatically.
 
 ---
 
