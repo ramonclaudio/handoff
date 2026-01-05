@@ -1,6 +1,6 @@
 ---
 name: handoff-awareness
-description: Session continuity awareness. Use when working on long sessions, encountering failures, making decisions, or when context might be lost. Reminds to document progress and use /handoff commands.
+description: Session continuity for AI coding sessions. Use when context window is filling up, hitting token limits, need to continue later, preserve progress, document failures, or switch to another machine. Triggers on mentions of "handoff", "session", "context limit", "continue tomorrow", or "save progress".
 ---
 
 # Handoff Awareness

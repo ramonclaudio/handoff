@@ -1,6 +1,6 @@
 ---
 name: handoff-manager
-description: Orchestrates parallel agents for session start/end workflows. Use PROACTIVELY when starting or ending coding sessions, or when context window is filling up.
+description: Orchestrates parallel agents for session handoffs. Use when starting a session (gather context), ending a session (archive state), context window is full, switching machines, or continuing work tomorrow. Triggers on "start handoff", "end handoff", "save session", "context full".
 tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite, Task, TaskOutput
 model: opus
 permissionMode: acceptEdits
