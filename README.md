@@ -249,6 +249,62 @@ your-project/
 │   └── ...
 ```
 
+## Examples
+
+### Shell Scripts
+
+Basic scripts for any AI assistant:
+
+```bash
+# Initialize handoff in a project
+./examples/scripts/handoff-init.sh
+
+# Run at session start (outputs context to paste)
+./examples/scripts/handoff-start.sh
+
+# Run at session end (archives and outputs state)
+./examples/scripts/handoff-end.sh
+```
+
+### Claude Code
+
+Optimized implementation using parallel background agents:
+
+- `examples/claude-code/skills/handoff-start.md` - START workflow skill
+- `examples/claude-code/skills/handoff-end.md` - END workflow skill
+- `examples/claude-code/CLAUDE.md.example` - Project instructions template
+
+**Key features:**
+- 4 parallel agents at START, 5 at END
+- Sonnet for data fetching, Opus for reasoning
+- Full commit messages and PR bodies
+- Automatic polling and aggregation
+
+```
+# Copy skills to your project
+cp -r examples/claude-code/skills .claude/
+
+# Add to your CLAUDE.md
+cat examples/claude-code/CLAUDE.md.example >> CLAUDE.md
+```
+
+### Custom Integrations
+
+The pattern works with any AI assistant that supports:
+- Running shell commands
+- Reading/writing files
+- Some form of task parallelization (optional but faster)
+
+Adapt the workflow to your tool's capabilities.
+
+## Contributing
+
+Contributions welcome! Ideas:
+- Examples for other AI tools (Cursor, Copilot, etc.)
+- Integrations with issue trackers (Linear, Jira, etc.)
+- GUI tools for managing handoffs
+- VS Code extension
+
 ## License
 
 MIT

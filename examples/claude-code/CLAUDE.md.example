@@ -1,0 +1,77 @@
+# Project Instructions
+
+## Handoff System
+
+> Session continuity across context window limits.
+
+### Structure
+
+```
+.handoff/
+├── CONTEXT.md     # Permanent: stack, commands, gotchas, patterns
+├── HANDOFF.md     # Session: git state, progress, failures, resume
+└── sessions/      # Archive: historical handoffs
+```
+
+### Model Selection
+
+| Task Type | Model | Why |
+|-----------|-------|-----|
+| Data fetching (git, gh, packages) | sonnet | Fast, accurate |
+| Issue tracker queries | sonnet | Structured data |
+| Reasoning, analysis, writing | opus | Best quality |
+
+### START (Every New Conversation)
+
+Launch 4 parallel background agents:
+
+```
+Agent 1 (sonnet): git log with FULL commit messages, status, diff, stash
+Agent 2 (sonnet): gh pr list with FULL bodies + commits (open + merged)
+Agent 3 (sonnet): Issue tracker with descriptions
+Agent 4 (opus): Read + analyze CONTEXT + HANDOFF, plan resume
+
+Poll all → Read FILES TOUCHED → Execute RESUME
+```
+
+### DURING
+
+- Document failures IMMEDIATELY with full detail
+- Update issue tracker as tasks complete
+- Record decisions with alternatives + reasoning
+- Mid-session checkpoint if context getting full
+
+### END (Every Conversation End)
+
+Launch 5 parallel background agents:
+
+```
+Agent 1 (sonnet): git state + PRs with FULL bodies + archive handoff
+Agent 2 (sonnet): package versions, compare with CONTEXT
+Agent 3 (sonnet): Issue tracker sync with full descriptions
+Agent 4 (opus): Update HANDOFF.md (reasoning for resume point)
+Agent 5 (opus): Update CONTEXT.md if needed (reasoning)
+
+Poll all → Verify complete
+```
+
+### Git Commands for Full Details
+
+```bash
+git log -10 --format='%h %s%n%b---'  # Full commit messages
+gh pr list --json number,title,body,mergedAt,commits  # Full PR bodies
+```
+
+### Agent Pattern
+
+```
+Task(subagent_type="general-purpose", model="sonnet", run_in_background=true): "data fetch..."
+Task(subagent_type="general-purpose", model="opus", run_in_background=true): "reasoning..."
+TaskOutput(task_id="...") # Poll for results
+```
+
+---
+
+## Project Details
+
+<!-- Add your project-specific instructions below -->
