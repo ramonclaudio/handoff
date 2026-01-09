@@ -21,6 +21,8 @@ Two markdown files capture everything needed to continue seamlessly: what's done
 
 ## Installation
 
+### Option A: As a Plugin (recommended)
+
 **Via marketplace:**
 
 ```bash
@@ -34,26 +36,47 @@ git clone https://github.com/ramonclaudio/handoff.git ~/Developer/handoff
 claude --plugin-dir ~/Developer/handoff
 ```
 
+Commands: `/handoff:run`, `/handoff:run start`, `/handoff:run end`, etc.
+
+### Option B: As a Standalone Skill
+
+Copy the skill to your personal skills directory:
+
+```bash
+mkdir -p ~/.claude/skills
+cp -r path/to/handoff/skills/handoff ~/.claude/skills/
+```
+
+Commands: `/handoff`, `/handoff start`, `/handoff end`, etc.
+
 ## Quick Start
 
+**Plugin users:**
 ```bash
 /handoff:run init     # Create .handoff/ structure
 /handoff:run start    # Gather context (4 parallel agents)
 # ... work ...
 /handoff:run end      # Archive state (5 parallel agents)
-/handoff:run clean    # Reset to clean slate
+```
+
+**Standalone skill users:**
+```bash
+/handoff init         # Create .handoff/ structure
+/handoff start        # Gather context (4 parallel agents)
+# ... work ...
+/handoff end          # Archive state (5 parallel agents)
 ```
 
 ## Commands
 
-| Command | Action |
-| :--- | :--- |
-| `/handoff:run` | Auto-detect: start or end based on context |
-| `/handoff:run init` | Create `.handoff/` with templates |
-| `/handoff:run start` | Gather git, PRs, issues with parallel agents |
-| `/handoff:run end` | Archive session, update handoff files |
-| `/handoff:run status` | Quick status check (no agents) |
-| `/handoff:run clean` | Delete sessions, reset to templates |
+| Plugin | Standalone | Action |
+| :--- | :--- | :--- |
+| `/handoff:run` | `/handoff` | Auto-detect: start or end based on context |
+| `/handoff:run init` | `/handoff init` | Create `.handoff/` with templates |
+| `/handoff:run start` | `/handoff start` | Gather git, PRs, issues with parallel agents |
+| `/handoff:run end` | `/handoff end` | Archive session, update handoff files |
+| `/handoff:run status` | `/handoff status` | Quick status check (no agents) |
+| `/handoff:run clean` | `/handoff clean` | Delete sessions, reset to templates |
 
 ## Structure
 
@@ -134,10 +157,10 @@ gh pr list --json number,title,body   # Full PR bodies
 
 | Component | Type | Invocation |
 | :--- | :--- | :--- |
-| `/handoff:run` | Command | User types it |
+| `/handoff:run` or `/handoff` | Command/Skill | User types it |
 | `handoff-manager` | Agent | Claude delegates or user requests |
 | `handoff-awareness` | Skill | Claude auto-applies during long sessions |
-| SessionStart/End | Hooks | Automatic reminders |
+| SessionStart/End | Hooks | Automatic reminders (plugin only) |
 
 ## Continuity Levels
 
