@@ -1,7 +1,39 @@
 ---
 description: Session continuity - gather context at start, archive state at end
-argument-hint: start|end|status|init [path]
-allowed-tools: Bash(git:*), Bash(gh:*), Bash(mkdir:*), Bash(cp:*), Bash(date:*), Bash(cat:*), Bash(ls:*), Read, Write, Edit, TodoWrite, Task, mcp__plugin_linear_linear__*
+argument-hint: start|end|status|init|clean [path]
+allowed-tools:
+  # Git (read-only operations only)
+  - Bash(git branch:*)
+  - Bash(git status:*)
+  - Bash(git log:*)
+  - Bash(git diff:*)
+  - Bash(git stash list:*)
+  - Bash(git rev-parse:*)
+  # GitHub CLI (read + PR comments)
+  - Bash(gh pr list:*)
+  - Bash(gh pr view:*)
+  - Bash(gh issue list:*)
+  - Bash(gh issue view:*)
+  # File operations (safe)
+  - Bash(mkdir -p:*)
+  - Bash(cp:*)
+  - Bash(mv:*)
+  - Bash(rm -f .handoff/sessions/*.md)
+  - Bash(date:*)
+  - Bash(ls:*)
+  - Bash(basename:*)
+  - Bash(test:*)
+  # Core tools
+  - Read
+  - Write
+  - Edit
+  - TodoWrite
+  - Task
+  - TaskOutput
+  # Linear integration
+  - mcp__plugin_linear_linear__list_issues
+  - mcp__plugin_linear_linear__update_issue
+  - mcp__plugin_linear_linear__create_issue
 ---
 
 # Handoff System
@@ -12,7 +44,7 @@ Session continuity across context windows.
 
 - Project: !`basename $(git rev-parse --show-toplevel 2>/dev/null || pwd)`
 - Branch: !`git branch --show-current 2>/dev/null || echo "not a git repo"`
-- Handoff exists: !`test -f .handoff/HANDOFF.md && echo "yes (.handoff/)" || test -f "$HOME/obsidian/projects/$(basename $(pwd))/HANDOFF.md" && echo "yes (obsidian)" || echo "no"`
+- Handoff exists: !`test -f .handoff/HANDOFF.md && echo "yes" || echo "no"`
 
 ## Commands
 
@@ -23,6 +55,7 @@ Session continuity across context windows.
 | `/handoff end` | Archive + update with 5 parallel agents |
 | `/handoff status` | Quick status check |
 | `/handoff init` | Initialize handoff in current project |
+| `/handoff clean` | Reset to clean slate (deletes sessions, resets templates) |
 
 ## Arguments
 
@@ -68,6 +101,11 @@ Copy to `.handoff/HANDOFF.md`, replacing placeholder values.
 ## START Workflow (4 Parallel Agents)
 
 If `$ARGUMENTS` is empty or contains "start":
+
+**Show progress to user:**
+```
+📊 Phase 1/4: Launching context gathering agents...
+```
 
 Launch 4 background agents simultaneously:
 
@@ -122,9 +160,33 @@ Return:
 ```
 
 **Then:**
+```
+⏳ Phase 2/4: Agents working in parallel...
+```
 1. Poll all agents with TaskOutput
+
+```
+✅ Phase 3/4: All agents complete. Analyzing results...
+```
 2. Read FILES TOUCHED from HANDOFF.md
-3. Execute RESUME action
+3. **Present resume plan to user:**
+   ```
+   📋 Session Context Gathered
+
+   Resume Point: [from Agent 4]
+   Files to Read: [list]
+   Suggested First Task: [action]
+
+   Ready to proceed? (y/n)
+   ```
+4. **WAIT for user approval before executing RESUME action**
+5. Only after approval: Execute RESUME action
+
+```
+🚀 Phase 4/4: Ready to resume
+```
+
+**CRITICAL:** Do NOT auto-execute. Always ask for confirmation.
 
 ---
 
@@ -139,9 +201,52 @@ Quick status without full agent workflow:
 
 ---
 
+## CLEAN Workflow
+
+If `$ARGUMENTS` contains "clean":
+
+**⚠️ Destructive operation - confirm with user first:**
+```
+⚠️ This will delete all session history and reset handoff files.
+Continue? (y/n)
+```
+
+After confirmation:
+1. Delete all session archives:
+```bash
+rm -f .handoff/sessions/*.md
+```
+
+2. Reset CONTEXT.md to template:
+```
+Read ${CLAUDE_PLUGIN_ROOT}/templates/CONTEXT.md
+Write to .handoff/CONTEXT.md
+```
+
+3. Reset HANDOFF.md to template:
+```
+Read ${CLAUDE_PLUGIN_ROOT}/templates/HANDOFF.md
+Write to .handoff/HANDOFF.md
+```
+
+4. Confirm:
+```
+✅ Handoff reset to clean slate
+   - Sessions deleted: [count]
+   - CONTEXT.md: reset to template
+   - HANDOFF.md: reset to template
+```
+
+---
+
 ## END Workflow (5 Parallel Agents)
 
 If `$ARGUMENTS` contains "end":
+
+**Show progress to user:**
+```
+📊 Phase 1/5: Launching archive agents...
+```
 
 Launch 5 background agents simultaneously:
 
@@ -239,10 +344,52 @@ Return: 'No updates needed' or the specific changes made."
 ```
 
 **Then:**
+```
+⏳ Phase 2/5: Agents working in parallel...
+```
 1. Poll all agents with TaskOutput
-2. Verify HANDOFF.md was updated
-3. Confirm session archived
-4. Show summary of changes
+
+```
+✅ Phase 3/5: All agents complete. Validating quality...
+```
+2. **Launch validation agent (opus):**
+   ```
+   Task(subagent_type="general-purpose", model="opus", run_in_background=false):
+   "Validate handoff quality. Read .handoff/HANDOFF.md and check:
+
+   REQUIRED (fail if missing):
+   - Resume section has specific file:line reference
+   - Files to read list is non-empty
+   - Status is one of: 🟢 🟡 🔴
+
+   WARNINGS (report but don't fail):
+   - File exceeds 120 lines (bloat risk)
+   - Resume is vague ('continue working on X')
+   - No failures documented despite errors in session
+
+   Return: PASS with summary, or FAIL with specific issues to fix."
+   ```
+3. If validation FAILS: Fix issues before proceeding
+
+```
+📝 Phase 4/5: Verifying files updated...
+```
+4. Verify HANDOFF.md was updated
+5. Confirm session archived to `.handoff/sessions/`
+
+```
+🎉 Phase 5/5: Session archived successfully
+```
+6. **Present summary to user:**
+   ```
+   ✅ Session Archived
+
+   Done: [count] items
+   Failed: [count] items (documented)
+   Resume: [specific action]
+
+   Safe to end session.
+   ```
 
 ---
 
