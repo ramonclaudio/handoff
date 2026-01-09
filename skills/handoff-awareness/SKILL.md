@@ -1,6 +1,7 @@
 ---
 name: handoff-awareness
-description: Session continuity for AI coding sessions. Use when context window is filling up, hitting token limits, need to continue later, preserve progress, document failures, or switch to another machine. Triggers on mentions of "handoff", "session", "context limit", "continue tomorrow", or "save progress".
+description: |
+  Session continuity for AI coding sessions. Use this skill when the user says "handoff", "session continuity", "context is full", "continue tomorrow", "save my progress", "where did I leave off", "pick up where I left off", "checkpoint this session", "archive my work", or mentions hitting token/context limits. Also use when documenting failures that should persist across sessions, making architectural decisions that need to be recorded, or noticing the conversation is getting long.
 ---
 
 # Handoff Awareness
@@ -19,7 +20,7 @@ This skill activates when:
 ## Key Behaviors
 
 ### At Session Start
-- Check for `.handoff/` or `~/obsidian/projects/<project>/` directories
+- Check for `.handoff/` directory in project root
 - If handoff files exist, remind user to run `/handoff start`
 - Read HANDOFF.md to understand where to resume
 
@@ -39,18 +40,14 @@ This skill activates when:
   - Files to read first
   - Context for why this is the next step
 
-## Handoff File Locations
+## Handoff File Location
 
 ```
-.handoff/                    # Project-local (default)
+.handoff/                    # Project root
 ├── CONTEXT.md              # Permanent project knowledge
 ├── HANDOFF.md              # Session state
-└── sessions/               # Archived handoffs
-
-~/obsidian/projects/<project>/  # Alternative (Obsidian vault)
-├── CONTEXT.md
-├── HANDOFF.md
-└── sessions/
+├── sessions/               # Archived handoffs
+└── specs/                  # Feature specifications (optional)
 ```
 
 ## Anti-Bloat Guidelines
@@ -98,12 +95,41 @@ Good:
 **Context:** Token refresh is async, need to prevent render during refresh
 ```
 
+## Quality Validation
+
+Before ending a session, validate HANDOFF.md meets these requirements:
+
+**REQUIRED (fail validation if missing):**
+- Resume section has specific `file:line` reference
+- Files to read list is non-empty
+- Status is one of: 🟢 Ready, 🟡 In Progress, 🔴 Blocked
+
+**WARNINGS (report but allow):**
+- File exceeds 120 lines (bloat risk)
+- Resume is vague ("continue working on X" without file:line)
+- No failures documented despite errors occurring in session
+
+## Decision Gates
+
+**START workflow:** After gathering context, ALWAYS present a summary and ask for user approval before executing the resume action. Never auto-execute.
+
+**END workflow:** After agents update files, run validation. If validation fails, fix issues before allowing session to end.
+
 ## Commands Reference
 
 | Command | Action |
 |---------|--------|
 | `/handoff` | Auto-detect start or end |
 | `/handoff start` | Gather context (4 parallel agents) |
-| `/handoff end` | Archive + update (5 parallel agents) |
+| `/handoff end` | Archive + update (5 parallel agents) + validation |
 | `/handoff status` | Quick status check |
 | `/handoff init` | Initialize in current project |
+
+## Model Selection
+
+| Task | Model | Why |
+|------|-------|-----|
+| Git, gh, packages | sonnet | Fast, structured data |
+| Issue queries | sonnet | Structured data |
+| Context analysis | opus | Quality reasoning |
+| Validation | opus | Catch subtle issues |
