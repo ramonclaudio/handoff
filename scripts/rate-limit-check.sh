@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Skip if jq not installed
+command -v jq &>/dev/null || exit 0
+
 TRANSCRIPT=$(jq -r '.transcript_path // empty')
 [[ -z "$TRANSCRIPT" || ! -f "$TRANSCRIPT" ]] && exit 0
 

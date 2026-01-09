@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Skip if jq not installed
+command -v jq &>/dev/null || exit 0
+
 FILE=$(jq -r '.tool_input.file_path // empty')
 
 case "$FILE" in
