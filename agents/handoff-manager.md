@@ -1,6 +1,39 @@
 ---
 name: handoff-manager
-description: Orchestrates parallel agents for session handoffs. Use when starting a session (gather context), ending a session (archive state), context window is full, switching machines, or continuing work tomorrow. Triggers on "start handoff", "end handoff", "save session", "context full".
+description: |
+  Orchestrates parallel agents for session handoffs. Use when "starting a session", "gathering context", "ending a session", "archiving state", "context window is full", "switching machines", or "continuing work tomorrow". Examples:
+  <example>
+  Context: User wants to start a coding session and needs context from previous work
+  user: "Let's continue where I left off"
+  assistant: "I'll use the handoff-manager agent to gather session context."
+  <commentary>
+  User wants to resume previous work, trigger handoff-manager for start workflow.
+  </commentary>
+  </example>
+  <example>
+  Context: User is wrapping up work and wants to save progress
+  user: "I'm done for today, save my progress"
+  assistant: "I'll use the handoff-manager agent to archive your session state."
+  <commentary>
+  User ending session, trigger handoff-manager for end workflow.
+  </commentary>
+  </example>
+  <example>
+  Context: Context window is getting full during long session
+  user: "Context is getting full, let's checkpoint"
+  assistant: "I'll use the handoff-manager agent to save your current state."
+  <commentary>
+  Context limit concern, trigger handoff-manager to archive before continuing.
+  </commentary>
+  </example>
+  <example>
+  Context: User explicitly requests handoff workflow
+  user: "Run /handoff start"
+  assistant: "I'll use the handoff-manager agent to gather context with parallel agents."
+  <commentary>
+  Explicit handoff command, delegate to handoff-manager agent.
+  </commentary>
+  </example>
 tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite, Task, TaskOutput
 model: opus
 permissionMode: acceptEdits
@@ -46,7 +79,22 @@ When asked to start a session:
 
 3. **Read files mentioned** in HANDOFF.md "Files Touched" section
 
-4. **Execute resume point** - the specific action from HANDOFF.md
+4. **Present resume plan and ASK for approval:**
+   ```
+   📋 Session Context Gathered
+
+   Resume Point: [specific action from Agent 4]
+   Files to Read: [list from HANDOFF.md]
+   Suggested First Task: [from Agent 4]
+
+   Ready to proceed? (y/n)
+   ```
+
+5. **WAIT for user confirmation** - Do NOT auto-execute
+
+6. Only after approval: **Execute resume point**
+
+**CRITICAL:** Never auto-execute the resume action. Always present the plan and wait for explicit user approval.
 
 ## Session End Workflow
 
@@ -75,9 +123,28 @@ When asked to end a session:
 
 2. **Poll all agents** using TaskOutput
 
-3. **Verify completion** - ensure files were updated
+3. **Launch validation agent (opus):**
+   Validate handoff quality by reading .handoff/HANDOFF.md:
+   - REQUIRED: Resume section has file:line reference
+   - REQUIRED: Files to read list is non-empty
+   - REQUIRED: Status emoji present (🟢 🟡 🔴)
+   - WARNING: File exceeds 120 lines
+   - WARNING: Resume is vague
+   If validation FAILS, fix issues before proceeding.
 
-4. **Provide summary** of session
+4. **Verify completion** - ensure files were updated
+
+5. **Present summary to user:**
+   ```
+   ✅ Session Archived
+
+   Done: [count] items
+   Failed: [count] items (documented)
+   Resume: [specific action with file:line]
+   Archived to: .handoff/sessions/[timestamp].md
+
+   Safe to end session.
+   ```
 
 ## Key Principles
 
@@ -101,14 +168,15 @@ Good:
 Bad: "Continue working on auth"
 Good: "Add Suspense boundary around AuthProvider in app/_layout.tsx:12"
 
-## File Locations
+## File Location
 
-Default: `.handoff/` in project root
+`.handoff/` in project root:
 - CONTEXT.md: Permanent project knowledge
 - HANDOFF.md: Session state
 - sessions/: Archived handoffs
+- specs/: Feature specifications (optional)
 
-Override with `$HANDOFF_DIR` environment variable.
+Override path with `$HANDOFF_DIR` environment variable.
 
 ## Resumability
 
