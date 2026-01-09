@@ -193,7 +193,6 @@ gh pr list --json number,title,body   # Full PR bodies
 
 - `gh` - PR details with full bodies
 - Linear MCP - Issue tracking
-- `jq` - JSON parsing in hooks
 
 ## License
 
