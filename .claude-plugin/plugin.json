@@ -1,6 +1,6 @@
 {
   "name": "handoff",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Session continuity for AI coding assistants with parallel agent workflows",
   "author": {
     "name": "Ray",
