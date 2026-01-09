@@ -28,7 +28,7 @@ description: |
   </example>
   <example>
   Context: User explicitly requests handoff workflow
-  user: "Run /handoff start"
+  user: "Run /handoff:run start"
   assistant: "I'll use the handoff-manager agent to gather context with parallel agents."
   <commentary>
   Explicit handoff command, delegate to handoff-manager agent.

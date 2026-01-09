@@ -21,7 +21,7 @@ This skill activates when:
 
 ### At Session Start
 - Check for `.handoff/` directory in project root
-- If handoff files exist, remind user to run `/handoff start`
+- If handoff files exist, remind user to run `/handoff:run start`
 - Read HANDOFF.md to understand where to resume
 
 ### During Session
@@ -34,7 +34,7 @@ This skill activates when:
 - Record decisions with reasoning and alternatives considered
 
 ### At Session End
-- Remind user to run `/handoff end` before ending
+- Remind user to run `/handoff:run end` before ending
 - Ensure HANDOFF.md has clear resume point with:
   - Specific next action (file:line reference)
   - Files to read first
@@ -119,11 +119,11 @@ Before ending a session, validate HANDOFF.md meets these requirements:
 
 | Command | Action |
 |---------|--------|
-| `/handoff` | Auto-detect start or end |
-| `/handoff start` | Gather context (4 parallel agents) |
-| `/handoff end` | Archive + update (5 parallel agents) + validation |
-| `/handoff status` | Quick status check |
-| `/handoff init` | Initialize in current project |
+| `/handoff:run` | Auto-detect start or end |
+| `/handoff:run start` | Gather context (4 parallel agents) |
+| `/handoff:run end` | Archive + update (5 parallel agents) + validation |
+| `/handoff:run status` | Quick status check |
+| `/handoff:run init` | Initialize in current project |
 
 ## Model Selection
 

@@ -37,23 +37,23 @@ claude --plugin-dir ~/Developer/handoff
 ## Quick Start
 
 ```bash
-/handoff init     # Create .handoff/ structure
-/handoff start    # Gather context (4 parallel agents)
+/handoff:run init     # Create .handoff/ structure
+/handoff:run start    # Gather context (4 parallel agents)
 # ... work ...
-/handoff end      # Archive state (5 parallel agents)
-/handoff clean    # Reset to clean slate
+/handoff:run end      # Archive state (5 parallel agents)
+/handoff:run clean    # Reset to clean slate
 ```
 
 ## Commands
 
 | Command | Action |
 | :--- | :--- |
-| `/handoff` | Auto-detect: start or end based on context |
-| `/handoff init` | Create `.handoff/` with templates |
-| `/handoff start` | Gather git, PRs, issues with parallel agents |
-| `/handoff end` | Archive session, update handoff files |
-| `/handoff status` | Quick status check (no agents) |
-| `/handoff clean` | Delete sessions, reset to templates |
+| `/handoff:run` | Auto-detect: start or end based on context |
+| `/handoff:run init` | Create `.handoff/` with templates |
+| `/handoff:run start` | Gather git, PRs, issues with parallel agents |
+| `/handoff:run end` | Archive session, update handoff files |
+| `/handoff:run status` | Quick status check (no agents) |
+| `/handoff:run clean` | Delete sessions, reset to templates |
 
 ## Structure
 
@@ -134,7 +134,7 @@ gh pr list --json number,title,body   # Full PR bodies
 
 | Component | Type | Invocation |
 | :--- | :--- | :--- |
-| `/handoff` | Command | User types it |
+| `/handoff:run` | Command | User types it |
 | `handoff-manager` | Agent | Claude delegates or user requests |
 | `handoff-awareness` | Skill | Claude auto-applies during long sessions |
 | SessionStart/End | Hooks | Automatic reminders |
@@ -145,7 +145,7 @@ gh pr list --json number,title,body   # Full PR bodies
 | :---: | :--- | :--- |
 | 1 | `/rewind` | Undo recent edits |
 | 2 | `--continue` | Resume paused session |
-| 3 | `/handoff` | Context full, switching tools, new machine |
+| 3 | `/handoff:run` | Context full, switching tools, new machine |
 
 ## Requirements
 

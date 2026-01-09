@@ -50,12 +50,12 @@ Session continuity across context windows.
 
 | Command | Action |
 |---------|--------|
-| `/handoff` | Auto-detect: start if beginning, end if wrapping up |
-| `/handoff start` | Gather context with 4 parallel agents |
-| `/handoff end` | Archive + update with 5 parallel agents |
-| `/handoff status` | Quick status check |
-| `/handoff init` | Initialize handoff in current project |
-| `/handoff clean` | Reset to clean slate (deletes sessions, resets templates) |
+| `/handoff:run` | Auto-detect: start if beginning, end if wrapping up |
+| `/handoff:run start` | Gather context with 4 parallel agents |
+| `/handoff:run end` | Archive + update with 5 parallel agents |
+| `/handoff:run status` | Quick status check |
+| `/handoff:run init` | Initialize handoff in current project |
+| `/handoff:run clean` | Reset to clean slate (deletes sessions, resets templates) |
 
 ## Arguments
 
@@ -94,7 +94,7 @@ Read ${CLAUDE_PLUGIN_ROOT}/templates/HANDOFF.md
 ```
 Copy to `.handoff/HANDOFF.md`, replacing placeholder values.
 
-4. Confirm creation and suggest running `/handoff start`.
+4. Confirm creation and suggest running `/handoff:run start`.
 
 ---
 

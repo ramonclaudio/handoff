@@ -10,18 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Initial public release.
 
 ### Commands
-- `/handoff init` - Create `.handoff/` structure with templates
-- `/handoff start` - Gather context with 4 parallel agents
-- `/handoff end` - Archive state with 5 parallel agents
-- `/handoff status` - Quick status check
-- `/handoff clean` - Reset to clean slate
+- `/handoff:run init` - Create `.handoff/` structure with templates
+- `/handoff:run start` - Gather context with 4 parallel agents
+- `/handoff:run end` - Archive state with 5 parallel agents
+- `/handoff:run status` - Quick status check
+- `/handoff:run clean` - Reset to clean slate
 
 ### Components
 - `handoff-manager` agent for parallel workflow orchestration
 - `handoff-explorer` agent for lightweight codebase discovery
 - `handoff-awareness` skill for model-invoked session continuity
-- `SessionStart` hook to remind about `/handoff start`
-- `SessionEnd` hook to remind about `/handoff end`
+- `SessionStart` hook to remind about `/handoff:run start`
+- `SessionEnd` hook to remind about `/handoff:run end`
 - `Stop` hook for rate limit detection
 - `PreToolUse` hook for quality validation
 

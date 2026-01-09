@@ -16,5 +16,5 @@ WAIT_M=$(((60 - M) % 60))
 cat <<EOF
 ⏳ Rate limit detected: $MATCH
 ⏰ Wait: ${WAIT_H}h ${WAIT_M}m
-💡 Run /handoff end to save progress
+💡 Run /handoff:run end to save progress
 EOF

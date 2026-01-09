@@ -28,9 +28,9 @@ fi
 
 if [ -n "$FOUND_HANDOFF" ]; then
     echo "📋 Handoff files detected at: $FOUND_HANDOFF"
-    echo "Run /handoff start to gather session context with parallel agents."
+    echo "Run /handoff:run start to gather session context with parallel agents."
 else
-    echo "💡 No handoff files found. Run /handoff init to set up session continuity."
+    echo "💡 No handoff files found. Run /handoff:run init to set up session continuity."
 fi
 
 exit 0
