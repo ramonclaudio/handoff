@@ -182,14 +182,6 @@ gh pr list --json number,title,body   # Full PR bodies
 | `handoff-awareness` | Skill | Claude auto-applies during long sessions |
 | SessionStart/End | Hooks | Automatic reminders (plugin only) |
 
-## Continuity Levels
-
-| Level | Feature | When |
-| :---: | :--- | :--- |
-| 1 | `/rewind` | Undo recent edits |
-| 2 | `--continue` | Resume paused session |
-| 3 | `/handoff:run` | Context full, switching tools, new machine |
-
 ## Requirements
 
 **Required:**
