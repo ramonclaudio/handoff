@@ -49,6 +49,17 @@ cp -r path/to/handoff/skills/handoff ~/.claude/skills/
 
 Commands: `/handoff`, `/handoff start`, `/handoff end`, etc.
 
+### Option C: As a Standalone Agent
+
+Copy the agent to your personal agents directory:
+
+```bash
+mkdir -p ~/.claude/agents
+cp path/to/handoff/agents/handoff.md ~/.claude/agents/
+```
+
+Invoke: "Use the handoff agent to start session", "Use the handoff agent to end session", etc.
+
 ## Quick Start
 
 **Plugin users:**
@@ -65,6 +76,14 @@ Commands: `/handoff`, `/handoff start`, `/handoff end`, etc.
 /handoff start        # Gather context (4 parallel agents)
 # ... work ...
 /handoff end          # Archive state (5 parallel agents)
+```
+
+**Standalone agent users:**
+```
+Use the handoff agent to init
+Use the handoff agent to start session
+# ... work ...
+Use the handoff agent to end session
 ```
 
 ## Commands
@@ -158,7 +177,8 @@ gh pr list --json number,title,body   # Full PR bodies
 | Component | Type | Invocation |
 | :--- | :--- | :--- |
 | `/handoff:run` or `/handoff` | Command/Skill | User types it |
-| `handoff-manager` | Agent | Claude delegates or user requests |
+| `handoff` | Agent | "Use the handoff agent to..." |
+| `handoff-manager` | Agent | Claude delegates or user requests (plugin) |
 | `handoff-awareness` | Skill | Claude auto-applies during long sessions |
 | SessionStart/End | Hooks | Automatic reminders (plugin only) |
 
