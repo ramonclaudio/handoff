@@ -82,17 +82,97 @@ If `$ARGUMENTS` contains "init":
 mkdir -p .handoff/sessions
 ```
 
-2. Read and copy the CONTEXT.md template:
-```
-Read ${CLAUDE_PLUGIN_ROOT}/templates/CONTEXT.md
-```
-Copy to `.handoff/CONTEXT.md`, replacing placeholder values with project info.
+2. Create CONTEXT.md with this template (customize for the project):
 
-3. Read and copy the HANDOFF.md template:
+```markdown
+# Project Name
+
+> One-line description of what this project does.
+
+## Links
+
+| Resource | URL |
+|----------|-----|
+| Repository | https://github.com/... |
+| Local | `/path/to/project` |
+
+## Stack (Updated: YYYY-MM-DD)
+
+| Layer | Package | Version |
+|-------|---------|---------|
+| Runtime | node/bun/python | x.x.x |
+| Framework | next/expo/django | x.x.x |
+
+## Commands
+
+\`\`\`bash
+npm run dev          # Start dev server
+npm run build        # Production build
+npm run test         # Run tests
+\`\`\`
+
+## What Never Works
+
+| Problem | Solution |
+|---------|----------|
+| Hot reload breaks | Restart dev server |
+
+## Architecture Patterns
+
+Document key patterns used in this project.
 ```
-Read ${CLAUDE_PLUGIN_ROOT}/templates/HANDOFF.md
+
+3. Create HANDOFF.md with this template:
+
+```markdown
+# Handoff: Project Name
+
+> Session: YYYY-MM-DD HH:MM
+> Task: What we're working on
+
+## Status: IDLE
+
+## Git State
+
+- **Branch:** main
+- **Status:** clean
+- **Stash:** none
+- **Open PR:** none
+
+### Recent Commits
+\`\`\`text
+# Will be populated by /handoff:run start
+\`\`\`
+
+## Done (This Session)
+
+- [ ] Nothing yet
+
+## Failed (Don't Retry)
+
+_None this session._
+
+## In Progress
+
+_None._
+
+## Decisions
+
+| Decision | Choice | Alternatives | Reasoning |
+|----------|--------|--------------|-----------|
+
+## Files Touched
+
+| File | Lines | What Changed |
+|------|-------|--------------|
+
+## Resume
+
+**Next:** Run `/handoff:run start` to gather context
+**Files to read:**
+**Context:** Fresh initialization
+**Blockers:** None
 ```
-Copy to `.handoff/HANDOFF.md`, replacing placeholder values.
 
 4. Confirm creation and suggest running `/handoff:run start`.
 
@@ -217,19 +297,9 @@ After confirmation:
 rm -f .handoff/sessions/*.md
 ```
 
-2. Reset CONTEXT.md to template:
-```
-Read ${CLAUDE_PLUGIN_ROOT}/templates/CONTEXT.md
-Write to .handoff/CONTEXT.md
-```
+2. Reset CONTEXT.md and HANDOFF.md to the templates shown in INIT Workflow.
 
-3. Reset HANDOFF.md to template:
-```
-Read ${CLAUDE_PLUGIN_ROOT}/templates/HANDOFF.md
-Write to .handoff/HANDOFF.md
-```
-
-4. Confirm:
+3. Confirm:
 ```
 ✅ Handoff reset to clean slate
    - Sessions deleted: [count]
@@ -421,3 +491,37 @@ Return: 'No updates needed' or the specific changes made."
 **Size targets:**
 - CONTEXT.md: ~100-150 lines
 - HANDOFF.md: ~80-120 lines
+
+---
+
+## Format Examples
+
+### Failure Documentation
+
+**Bad:**
+```
+❌ Auth didn't work
+```
+
+**Good:**
+```
+### ❌ JWT token refresh
+- **Attempted:** Added refresh logic in useAuth hook
+- **Error:** Token expired still appears after refresh
+- **Why:** Refresh happens async, component re-renders before token updates
+- **Would need:** Suspense boundary or loading state during refresh
+```
+
+### Resume Point
+
+**Bad:**
+```
+**Next:** Continue working on auth
+```
+
+**Good:**
+```
+**Next:** Add Suspense boundary around AuthProvider in app/_layout.tsx:12
+**Files to read:** lib/auth.ts:45-60, app/_layout.tsx
+**Context:** Token refresh is async, need to prevent render during refresh
+```

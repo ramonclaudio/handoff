@@ -5,7 +5,6 @@ description: |
 tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite, Task, TaskOutput
 model: opus
 permissionMode: acceptEdits
-skills: handoff-awareness
 ---
 
 # Handoff Agent
@@ -457,3 +456,37 @@ Return: 'No updates needed' or the specific changes made."
 **Size targets:**
 - CONTEXT.md: ~100-150 lines
 - HANDOFF.md: ~80-120 lines
+
+---
+
+## Format Examples
+
+### Failure Documentation
+
+**Bad:**
+```
+❌ Auth didn't work
+```
+
+**Good:**
+```
+### ❌ JWT token refresh
+- **Attempted:** Added refresh logic in useAuth hook
+- **Error:** Token expired still appears after refresh
+- **Why:** Refresh happens async, component re-renders before token updates
+- **Would need:** Suspense boundary or loading state during refresh
+```
+
+### Resume Point
+
+**Bad:**
+```
+**Next:** Continue working on auth
+```
+
+**Good:**
+```
+**Next:** Add Suspense boundary around AuthProvider in app/_layout.tsx:12
+**Files to read:** lib/auth.ts:45-60, app/_layout.tsx
+**Context:** Token refresh is async, need to prevent render during refresh
+```

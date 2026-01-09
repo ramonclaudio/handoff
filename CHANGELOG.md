@@ -17,16 +17,14 @@ Initial public release.
 - `/handoff:run clean` - Reset to clean slate
 
 ### Components
-- `handoff-manager` agent for parallel workflow orchestration
+- `handoff` agent for standalone use
 - `handoff-explorer` agent for lightweight codebase discovery
-- `handoff-awareness` skill for model-invoked session continuity
+- `handoff` skill for skill-only installation
 - `SessionStart` hook to remind about `/handoff:run start`
 - `SessionEnd` hook to remind about `/handoff:run end`
-- `Stop` hook for rate limit detection
-- `PreToolUse` hook for quality validation
 
 ### Features
 - Parallel agent workflows (sonnet for data, opus for reasoning)
-- Rate limit detection with wait time calculation
 - Quality validation for handoff files
-- Templates for CONTEXT.md and HANDOFF.md
+- Inline templates for CONTEXT.md and HANDOFF.md
+- Three installation methods: plugin, skill, or agent
