@@ -15,9 +15,14 @@ allowed-tools:
   - Bash(date:*)
   - Bash(ls:*)
   - Bash(test:*)
+  - Bash(find:*)
+  - Bash(wc:*)
+  - Bash(head:*)
+  - Bash(grep:*)
   - Read
   - Write
   - Edit
+  - Glob
   - mcp__plugin_linear_linear__list_issues
 ---
 
@@ -29,6 +34,22 @@ Session continuity for Claude Code. Like hospital shift changes, bad handoffs lo
 
 ---
 
+## CONTEXT.md Design
+
+CONTEXT.md has two types of sections:
+
+**Auto-generated** (updated on INIT and END):
+- `## Project` - name, description, links
+- `## Structure` - current file tree
+- `## Invocation` - entry points, commands
+
+**Curated** (preserved, only manual edits):
+- `## Stack` - technologies, versions
+- `## Patterns` - how things work
+- `## What Never Works` - gotchas, anti-patterns
+
+---
+
 ## INIT
 
 If `$ARGUMENTS` = "init":
@@ -37,34 +58,66 @@ If `$ARGUMENTS` = "init":
 mkdir -p .handoff/sessions
 ```
 
+**Scan project structure:**
+```bash
+# Find key files
+ls -la
+find . -maxdepth 2 -name "*.md" -o -name "*.json" -o -name "package.json" -o -name "*.lock*" 2>/dev/null | head -20
+```
+
+**Detect package manager:**
+```bash
+ls bun.lockb package-lock.json pnpm-lock.yaml yarn.lock 2>/dev/null | head -1
+```
+
 Write `.handoff/CONTEXT.md`:
 ```markdown
-# Project Name
+# [Project Name]
 
-> One-line description
+> [One-line description from package.json or README]
+
+## Links
+
+| Resource | URL |
+|----------|-----|
+| Repository | [from git remote] |
+| Local | [pwd] |
 
 ## Stack
+
+<!-- CURATED: Edit manually -->
 | Layer | Tech | Version |
 |-------|------|---------|
+| Runtime | [detected] | |
+| Framework | | |
 
-## Commands
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Start dev server |
-| `npm run build` | Production build |
-| `npm run test` | Run tests |
-| `npm run lint` | Lint check |
+## Structure
 
-## Critical Paths
-Files/areas that are high-risk or complex:
--
+<!-- AUTO: Regenerated on END -->
+```
+[file tree from scan]
+```
 
-## What Never Works
-| Problem | Solution |
-|---------|----------|
+## Invocation
+
+<!-- AUTO: Regenerated on END -->
+| Method | Command | Purpose |
+|--------|---------|---------|
+| Dev | `[pkg] run dev` | Start dev server |
+| Build | `[pkg] run build` | Production build |
+| Test | `[pkg] test` | Run tests |
+| Lint | `[pkg] run lint` | Lint check |
 
 ## Patterns
+
+<!-- CURATED: Edit manually -->
 Key patterns and conventions used in this codebase.
+
+## What Never Works
+
+<!-- CURATED: Edit manually -->
+| Problem | Solution |
+|---------|----------|
 ```
 
 Write `.handoff/HANDOFF.md`:
@@ -120,33 +173,56 @@ ls -1 .handoff/sessions/*.md 2>/dev/null | sort -r | head -1
 Extract timestamp from filename (`YYYY-MM-DD-HHMM.md`).
 If no sessions, this is first start - use all available history.
 
-### Phase 2: Gather State
+### Phase 2: Validate CONTEXT.md
 
-**2a. Project Identity**
+**2a. Read CONTEXT.md**
+```
+Read .handoff/CONTEXT.md
+```
+
+**2b. Check for drift**
+Extract file paths from `## Structure` section. Verify they exist:
+```bash
+# For each path in Structure section
+test -e "[path]" && echo "✓ [path]" || echo "✗ MISSING: [path]"
+```
+
+**2c. Report drift**
+If any files are missing or new files exist that aren't in Structure:
+```
+⚠️  CONTEXT DRIFT DETECTED
+├─ Missing: [list of files in CONTEXT.md that don't exist]
+├─ New: [list of key files not in CONTEXT.md]
+└─ Run `/handoff end` to update, or edit CONTEXT.md manually
+```
+
+### Phase 3: Gather State
+
+**3a. Project Identity**
 ```
 Read .handoff/CONTEXT.md
 ```
 Extract: stack, commands, critical paths, patterns, gotchas.
 
-**2b. Last Handoff State**
+**3b. Last Handoff State**
 ```
 Read .handoff/HANDOFF.md
 ```
 Extract: severity, health status, done, failed, blockers, watch-out-for, resume point.
 
-**2c. Current Git State**
+**3c. Current Git State**
 ```bash
 git branch --show-current
 git status -s | head -20
 ```
 
-**2d. Commits Since Last Session**
+**3d. Commits Since Last Session**
 ```bash
 git log --since="YYYY-MM-DD HH:MM" --format="%h %s%n%b" 2>/dev/null
 ```
 If no session history, use `git log -10 --format="%h %s%n%b"`.
 
-**2e. PR Activity Since Last Session**
+**3e. PR Activity Since Last Session**
 ```bash
 # Currently open
 gh pr list --state=open --json number,title,body,headRefName 2>/dev/null
@@ -158,19 +234,19 @@ gh pr list --state=merged --search "merged:>YYYY-MM-DD" --json number,title,body
 gh pr list --state=all --search "created:>YYYY-MM-DD" --json number,title,body,state 2>/dev/null
 ```
 
-**2f. Linear Issues (if configured)**
+**3f. Linear Issues (if configured)**
 ```
 mcp__plugin_linear_linear__list_issues
 ```
 Filter to issues updated since last session.
 
-### Phase 3: Assess Current Health
+### Phase 4: Assess Current Health
 
 Check if state has drifted since handoff:
 - Did git status change? (new commits from elsewhere?)
 - Are there uncommitted changes not in handoff?
 
-### Phase 4: Output Read-Back
+### Phase 5: Output Read-Back
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -180,6 +256,10 @@ Check if state has drifted since handoff:
 ║  Stack: [from CONTEXT.md]                                    ║
 ║  Severity: [🔴 CRITICAL | 🟡 IN PROGRESS | 🟢 READY]         ║
 ╚══════════════════════════════════════════════════════════════╝
+
+[If drift detected:]
+⚠️  CONTEXT DRIFT
+[list of missing/new files]
 
 SINCE LAST SESSION ([date], [N] days ago)
 ├─ Commits: [N]
@@ -257,7 +337,32 @@ git status -s | head -20
 git log -5 --format="%h %s"
 ```
 
-### Phase 4: Analyze Session (Automated)
+### Phase 4: Update CONTEXT.md (Auto Sections Only)
+
+**4a. Scan current structure:**
+```bash
+# Get current file structure
+find . -maxdepth 3 -type f \( -name "*.md" -o -name "*.json" -o -name "*.ts" -o -name "*.js" -o -name "*.py" \) 2>/dev/null | grep -v node_modules | grep -v .git | sort
+```
+
+**4b. Read current CONTEXT.md:**
+```
+Read .handoff/CONTEXT.md
+```
+
+**4c. Update auto sections, preserve curated:**
+
+Parse CONTEXT.md and identify sections by `<!-- AUTO: -->` and `<!-- CURATED: -->` markers.
+
+- **Preserve**: `## Stack`, `## Patterns`, `## What Never Works` (curated)
+- **Regenerate**: `## Structure`, `## Invocation` (auto)
+
+Write updated CONTEXT.md with:
+- New `## Structure` reflecting current file tree
+- Updated `## Invocation` if commands changed
+- All curated sections preserved exactly
+
+### Phase 5: Analyze Session (Automated)
 
 **Infer from conversation context - DO NOT ASK USER:**
 
@@ -296,7 +401,7 @@ git log -5 --format="%h %s"
    - If complete: next item from backlog/issues
    - ALWAYS include specific file:line when possible
 
-### Phase 5: Write HANDOFF.md
+### Phase 6: Write HANDOFF.md
 
 ```markdown
 # Handoff
@@ -346,7 +451,7 @@ git log -5 --format="%h %s"
 **Context:** [Why this is the right next step]
 ```
 
-### Phase 6: Validate Handoff Quality
+### Phase 7: Validate Handoff Quality
 
 **REQUIRED (fail if missing):**
 - [ ] Severity is set
@@ -361,7 +466,7 @@ git log -5 --format="%h %s"
 - [ ] No watch-out-for items (really nothing learned?)
 - [ ] Health checks all skipped
 
-### Phase 7: Confirm
+### Phase 8: Confirm
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -382,6 +487,11 @@ SESSION SUMMARY
 ├─ Blockers: [N] active
 └─ Watch-outs: [N] added
 
+CONTEXT UPDATED
+├─ Structure: [regenerated | unchanged]
+├─ Invocation: [regenerated | unchanged]
+└─ Curated sections: preserved
+
 RESUME POINT
 [Next action]
 
@@ -398,7 +508,14 @@ If `$ARGUMENTS` = "status":
 Quick check, no health runs:
 
 ```
+Read .handoff/CONTEXT.md
 Read .handoff/HANDOFF.md
+```
+
+**Check for drift:**
+```bash
+# Verify Structure section matches reality
+# List any missing or new files
 ```
 
 Output:
@@ -407,6 +524,7 @@ Severity: [emoji]
 Branch: [branch]
 Health: Build [status] | Tests [status] | Lint [status]
 Blockers: [N]
+Context: [drift status - ✓ current | ⚠️ stale]
 Resume: [next action]
 ```
 
@@ -443,6 +561,7 @@ Detect from CONTEXT.md or infer from lockfile:
 - Omit failure root cause (next session repeats mistake)
 - Ignore blockers (they don't disappear)
 - Leave severity at 🟢 when tests are failing
+- Let CONTEXT.md go stale (structure drift = confusion)
 
 **DO:**
 - Capture exact error messages in failures
@@ -450,3 +569,4 @@ Detect from CONTEXT.md or infer from lockfile:
 - Document gotchas immediately when discovered
 - Be honest about severity
 - Validate handoff before ending
+- Update CONTEXT.md structure on END

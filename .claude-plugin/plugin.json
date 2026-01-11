@@ -10,5 +10,14 @@
   "homepage": "https://github.com/ramonclaudio/handoff",
   "repository": "https://github.com/ramonclaudio/handoff",
   "license": "MIT",
-  "keywords": ["session", "continuity", "handoff", "context", "sbar"]
+  "keywords": [
+    "session",
+    "continuity",
+    "handoff",
+    "context",
+    "sbar",
+    "claude-code",
+    "codex",
+    "cursor"
+  ]
 }
