@@ -1,7 +1,7 @@
 {
   "name": "handoff",
-  "version": "1.0.0",
-  "description": "Session continuity for AI coding assistants with parallel agent workflows",
+  "version": "2.0.0",
+  "description": "Medical-grade session handoff with SBAR framework",
   "author": {
     "name": "Ray",
     "email": "ray@ramonclaudio.dev",
@@ -10,5 +10,5 @@
   "homepage": "https://github.com/ramonclaudio/handoff",
   "repository": "https://github.com/ramonclaudio/handoff",
   "license": "MIT",
-  "keywords": ["session", "continuity", "handoff", "context", "workflow"]
+  "keywords": ["session", "continuity", "handoff", "context", "sbar", "medical-grade"]
 }
