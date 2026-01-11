@@ -3,26 +3,29 @@ name: handoff
 description: Session continuity for Claude Code. Gather context at start, archive state at end. Use when user mentions handoff, saving progress, or resuming work.
 argument-hint: start|end|status|init
 allowed-tools:
+  # Git & GitHub
   - Bash(git:*)
   - Bash(gh:*)
+  # Package managers
   - Bash(npm:*)
   - Bash(bun:*)
   - Bash(pnpm:*)
   - Bash(yarn:*)
+  # File operations (bash-only)
   - Bash(mkdir:*)
   - Bash(cp:*)
   - Bash(rm:*)
   - Bash(date:*)
   - Bash(ls:*)
   - Bash(test:*)
-  - Bash(find:*)
   - Bash(wc:*)
-  - Bash(head:*)
-  - Bash(grep:*)
+  # Dedicated tools (preferred over bash)
   - Read
   - Write
   - Edit
   - Glob
+  - Grep
+  # External integrations
   - mcp__plugin_linear_linear__list_issues
 ---
 
@@ -60,9 +63,12 @@ mkdir -p .handoff/sessions
 
 **Scan project structure:**
 ```bash
-# Find key files
 ls -la
-find . -maxdepth 2 -name "*.md" -o -name "*.json" -o -name "package.json" -o -name "*.lock*" 2>/dev/null | head -20
+```
+
+Use Glob tool to find key files:
+```
+Glob: **/*.md, **/*.json, **/package.json, **/*.lock*
 ```
 
 **Detect package manager:**
@@ -340,10 +346,12 @@ git log -5 --format="%h %s"
 ### Phase 4: Update CONTEXT.md (Auto Sections Only)
 
 **4a. Scan current structure:**
-```bash
-# Get current file structure
-find . -maxdepth 3 -type f \( -name "*.md" -o -name "*.json" -o -name "*.ts" -o -name "*.js" -o -name "*.py" \) 2>/dev/null | grep -v node_modules | grep -v .git | sort
+
+Use Glob tool to get current file structure:
 ```
+Glob: **/*.md, **/*.json, **/*.ts, **/*.js, **/*.py
+```
+(Glob automatically excludes node_modules and .git)
 
 **4b. Read current CONTEXT.md:**
 ```
