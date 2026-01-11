@@ -10,6 +10,7 @@
   "plugins": [
     {
       "name": "handoff",
+      "source": "./",
       "description": "Capture and restore session context with SBAR-structured handoffs. Tracks what's done, what failed, and where to resume.",
       "version": "1.0.0"
     }
