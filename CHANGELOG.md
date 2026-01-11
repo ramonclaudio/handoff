@@ -1,30 +1,45 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+## [2.0.0] - 2026-01-11
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+Medical-grade handoff system. SBAR framework. Zero agents.
+
+### Added
+- **Severity levels**: 🔴 CRITICAL, 🟡 IN PROGRESS, 🟢 READY
+- **Health checks**: Build/test/lint status captured on END
+- **Watch Out For**: Anticipatory guidance section
+- **Blockers**: Explicit blocking issues tracking
+- **Drift detection**: Detect if state changed since last handoff
+- **Read-back confirmation**: Structured output on START, wait for confirmation
+- **Handoff validation**: Required fields checked before END completes
+- **SBAR framework**: Situation, Background, Assessment, Recommendation
+
+### Changed
+- **No agents**: All operations inline (was 4-5 background agents)
+- **Scoped queries**: All data fetched since last session only
+- **Failed section**: Now requires Tried/Error/Why/Need structure
+- **Resume section**: Now requires Next/Files/Context structure
+- **Timeline-based**: Uses session archive timestamps, not arbitrary limits
+
+### Removed
+- `handoff-explorer` agent (use built-in Explore)
+- Background agent spawning
+- Arbitrary commit/PR limits
+
+### Token Impact
+| Operation | v1.0 | v2.0 |
+|-----------|------|------|
+| START | ~55k tokens | ~5-10k tokens |
+| Definition | ~4k tokens | ~1.5k tokens |
+
+---
 
 ## [1.0.0] - 2026-01-09
 
-Initial public release.
-
-### Commands
-- `/handoff:run init` - Create `.handoff/` structure with templates
-- `/handoff:run start` - Gather context with 4 parallel agents
-- `/handoff:run end` - Archive state with 5 parallel agents
-- `/handoff:run status` - Quick status check
-- `/handoff:run clean` - Reset to clean slate
-
-### Components
-- `handoff` agent for standalone use
-- `handoff-explorer` agent for lightweight codebase discovery
-- `handoff` skill for skill-only installation
-- `SessionStart` hook to remind about `/handoff:run start`
-- `SessionEnd` hook to remind about `/handoff:run end`
+Initial release with parallel agent architecture.
 
 ### Features
-- Parallel agent workflows (sonnet for data, opus for reasoning)
-- Quality validation for handoff files
-- Inline templates for CONTEXT.md and HANDOFF.md
-- Three installation methods: plugin, skill, or agent
+- 4 parallel agents for START
+- 5 parallel agents for END
+- CONTEXT.md and HANDOFF.md structure
+- Session archiving
