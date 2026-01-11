@@ -1,527 +1,451 @@
 ---
-description: Session continuity - gather context at start, archive state at end
-argument-hint: start|end|status|init|clean [path]
+description: Medical-grade session handoff - gather context or archive state
+argument-hint: start|end|status|init
 allowed-tools:
-  # Git (read-only operations only)
-  - Bash(git branch:*)
-  - Bash(git status:*)
-  - Bash(git log:*)
-  - Bash(git diff:*)
-  - Bash(git stash list:*)
-  - Bash(git rev-parse:*)
-  # GitHub CLI (read + PR comments)
-  - Bash(gh pr list:*)
-  - Bash(gh pr view:*)
-  - Bash(gh issue list:*)
-  - Bash(gh issue view:*)
-  # File operations (safe)
-  - Bash(mkdir -p:*)
+  - Bash(git:*)
+  - Bash(gh:*)
+  - Bash(npm:*)
+  - Bash(bun:*)
+  - Bash(pnpm:*)
+  - Bash(yarn:*)
+  - Bash(mkdir:*)
   - Bash(cp:*)
-  - Bash(mv:*)
-  - Bash(rm -f .handoff/sessions/*.md)
+  - Bash(rm:*)
   - Bash(date:*)
   - Bash(ls:*)
-  - Bash(basename:*)
   - Bash(test:*)
-  # Core tools
   - Read
   - Write
   - Edit
-  - TodoWrite
-  - Task
-  - TaskOutput
-  # Linear integration
   - mcp__plugin_linear_linear__list_issues
-  - mcp__plugin_linear_linear__update_issue
-  - mcp__plugin_linear_linear__create_issue
 ---
 
-# Handoff System
+# Handoff
 
-Session continuity across context windows.
+Medical-grade session continuity. Like hospital shift changes - bad handoffs kill projects.
 
-## Current Context
+## Argument: $ARGUMENTS
 
-- Project: !`basename $(git rev-parse --show-toplevel 2>/dev/null || pwd)`
-- Branch: !`git branch --show-current 2>/dev/null || echo "not a git repo"`
-- Handoff exists: !`test -f .handoff/HANDOFF.md && echo "yes" || echo "no"`
+---
 
-## Commands
+## INIT
 
-| Command | Action |
-|---------|--------|
-| `/handoff:run` | Auto-detect: start if beginning, end if wrapping up |
-| `/handoff:run start` | Gather context with 4 parallel agents |
-| `/handoff:run end` | Archive + update with 5 parallel agents |
-| `/handoff:run status` | Quick status check |
-| `/handoff:run init` | Initialize handoff in current project |
-| `/handoff:run clean` | Reset to clean slate (deletes sessions, resets templates) |
+If `$ARGUMENTS` = "init":
 
-## Arguments
-
-$ARGUMENTS
-
-## File Locations
-
-Default (project-local):
-```
-.handoff/
-├── CONTEXT.md     # Permanent project knowledge
-├── HANDOFF.md     # Session state (updated each session)
-└── sessions/      # Archived handoffs
-```
-
-Or custom via `$HANDOFF_DIR` environment variable.
-
-## INIT Workflow
-
-If `$ARGUMENTS` contains "init":
-
-1. Create handoff structure:
 ```bash
 mkdir -p .handoff/sessions
 ```
 
-2. Create CONTEXT.md with this template (customize for the project):
-
+Write `.handoff/CONTEXT.md`:
 ```markdown
 # Project Name
 
-> One-line description of what this project does.
+> One-line description
 
-## Links
-
-| Resource | URL |
-|----------|-----|
-| Repository | https://github.com/... |
-| Local | `/path/to/project` |
-
-## Stack (Updated: YYYY-MM-DD)
-
-| Layer | Package | Version |
-|-------|---------|---------|
-| Runtime | node/bun/python | x.x.x |
-| Framework | next/expo/django | x.x.x |
+## Stack
+| Layer | Tech | Version |
+|-------|------|---------|
 
 ## Commands
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Start dev server |
+| `npm run build` | Production build |
+| `npm run test` | Run tests |
+| `npm run lint` | Lint check |
 
-\`\`\`bash
-npm run dev          # Start dev server
-npm run build        # Production build
-npm run test         # Run tests
-\`\`\`
+## Critical Paths
+Files/areas that are high-risk or complex:
+-
 
 ## What Never Works
-
 | Problem | Solution |
 |---------|----------|
-| Hot reload breaks | Restart dev server |
 
-## Architecture Patterns
-
-Document key patterns used in this project.
+## Patterns
+Key patterns and conventions used in this codebase.
 ```
 
-3. Create HANDOFF.md with this template:
-
+Write `.handoff/HANDOFF.md`:
 ```markdown
-# Handoff: Project Name
+# Handoff
 
 > Session: YYYY-MM-DD HH:MM
-> Task: What we're working on
+> Severity: 🟢 READY
 
-## Status: IDLE
+## Health
+| Check | Status |
+|-------|--------|
+| Build | ⏸️ not run |
+| Tests | ⏸️ not run |
+| Lint | ⏸️ not run |
 
-## Git State
-
-- **Branch:** main
-- **Status:** clean
-- **Stash:** none
-- **Open PR:** none
-
-### Recent Commits
-\`\`\`text
-# Will be populated by /handoff:run start
-\`\`\`
-
-## Done (This Session)
-
-- [ ] Nothing yet
-
-## Failed (Don't Retry)
-
-_None this session._
-
-## In Progress
-
-_None._
-
-## Decisions
-
-| Decision | Choice | Alternatives | Reasoning |
-|----------|--------|--------------|-----------|
-
-## Files Touched
-
-| File | Lines | What Changed |
-|------|-------|--------------|
-
-## Resume
-
-**Next:** Run `/handoff:run start` to gather context
-**Files to read:**
-**Context:** Fresh initialization
-**Blockers:** None
-```
-
-4. Confirm creation and suggest running `/handoff:run start`.
-
----
-
-## START Workflow (4 Parallel Agents)
-
-If `$ARGUMENTS` is empty or contains "start":
-
-**Show progress to user:**
-```
-📊 Phase 1/4: Launching context gathering agents...
-```
-
-Launch 4 background agents simultaneously:
-
-### Agent 1: Git State (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Get complete git state:
-- git branch --show-current
-- git status --short
-- git log -10 --format='%h %s%n%b---'
-- git diff --stat HEAD~5
-- git stash list
-Return structured summary."
-```
-
-### Agent 2: GitHub PRs (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Get PR information:
-- gh pr list --state=open --json number,title,body,headRefName,commits
-- gh pr list --state=merged --limit=5 --json number,title,body,mergedAt
-Return full PR bodies, not just titles."
-```
-
-### Agent 3: Issue Tracker (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Get issue tracker state. Try GitHub first:
-- gh issue list --state=open --json number,title,body
-
-If Linear is configured (check for mcp__plugin_linear), also query:
-- mcp__plugin_linear_linear__list_issues
-
-Return issues with full descriptions."
-```
-
-### Agent 4: Context Analysis (opus)
-```
-Task(subagent_type="general-purpose", model="opus", run_in_background=true):
-"Read and analyze handoff files:
-- Read .handoff/CONTEXT.md (or HANDOFF_DIR path)
-- Read .handoff/HANDOFF.md
-- Extract the RESUME section
-- Identify files that need to be read
-- Create action plan for session
-
-Return:
-1. Key context points
-2. Resume point with specific actions
-3. Files to read immediately
-4. Suggested first task"
-```
-
-**Then:**
-```
-⏳ Phase 2/4: Agents working in parallel...
-```
-1. Poll all agents with TaskOutput
-
-```
-✅ Phase 3/4: All agents complete. Analyzing results...
-```
-2. Read FILES TOUCHED from HANDOFF.md
-3. **Present resume plan to user:**
-   ```
-   📋 Session Context Gathered
-
-   Resume Point: [from Agent 4]
-   Files to Read: [list]
-   Suggested First Task: [action]
-
-   Ready to proceed? (y/n)
-   ```
-4. **WAIT for user approval before executing RESUME action**
-5. Only after approval: Execute RESUME action
-
-```
-🚀 Phase 4/4: Ready to resume
-```
-
-**CRITICAL:** Do NOT auto-execute. Always ask for confirmation.
-
----
-
-## STATUS Workflow
-
-If `$ARGUMENTS` contains "status":
-
-Quick status without full agent workflow:
-1. Read .handoff/HANDOFF.md
-2. Show: Status, Branch, Last Done, Resume point
-3. No agents needed
-
----
-
-## CLEAN Workflow
-
-If `$ARGUMENTS` contains "clean":
-
-**⚠️ Destructive operation - confirm with user first:**
-```
-⚠️ This will delete all session history and reset handoff files.
-Continue? (y/n)
-```
-
-After confirmation:
-1. Delete all session archives:
-```bash
-rm -f .handoff/sessions/*.md
-```
-
-2. Reset CONTEXT.md and HANDOFF.md to the templates shown in INIT Workflow.
-
-3. Confirm:
-```
-✅ Handoff reset to clean slate
-   - Sessions deleted: [count]
-   - CONTEXT.md: reset to template
-   - HANDOFF.md: reset to template
-```
-
----
-
-## END Workflow (5 Parallel Agents)
-
-If `$ARGUMENTS` contains "end":
-
-**Show progress to user:**
-```
-📊 Phase 1/5: Launching archive agents...
-```
-
-Launch 5 background agents simultaneously:
-
-### Agent 1: Git + Archive (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Get git state and archive:
-1. Get current git state (branch, status, log -5)
-2. Get open PRs with full bodies
-3. Archive .handoff/HANDOFF.md to .handoff/sessions/$(date +%Y-%m-%d-%H%M).md
-Return git summary for handoff update."
-```
-
-### Agent 2: Package Versions (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Compare package versions:
-1. Read package.json (or pyproject.toml, Cargo.toml, etc.)
-2. Read .handoff/CONTEXT.md stack section
-3. Report any version changes since last session
-Return version diff if any."
-```
-
-### Agent 3: Issue Sync (sonnet)
-```
-Task(subagent_type="general-purpose", model="sonnet", run_in_background=true):
-"Sync issue tracker:
-1. Check what was done this session
-2. Update issue states if needed:
-   - mcp__plugin_linear_linear__update_issue state:'Done'
-   - Or gh issue close
-3. Create new issues for discovered work
-Return sync summary."
-```
-
-### Agent 4: Update HANDOFF.md (opus)
-```
-Task(subagent_type="general-purpose", model="opus", run_in_background=true):
-"Update .handoff/HANDOFF.md with complete session state:
-
-## Status
-[🟢 Ready / 🟡 In Progress / 🔴 Blocked]
-
-## Git State
-- Branch: [from agent 1]
-- Status: [clean/dirty]
-- Recent commits: [last 3-5 with full messages]
-
-## Recent PRs
-[From agent 1, with full bodies]
+## Git
+- Branch: main
+- Status: clean
 
 ## Done
-- [What was accomplished this session]
+_Nothing yet._
 
 ## Failed
-### ❌ [Issue name]
-- **Attempted:** [What was tried]
-- **Error:** [Exact error message]
-- **Why:** [Root cause analysis]
-- **Would need:** [What would fix it]
+_None._
 
-## Decisions
-| Decision | Alternatives | Reasoning |
-|----------|--------------|-----------|
-| [Choice made] | [Other options] | [Why this choice] |
+## Blockers
+_None._
 
-## Files Touched
-| File | Lines | Change |
-|------|-------|--------|
-| [path] | [line range] | [what changed] |
+## Watch Out For
+_None yet._
 
 ## Resume
-**Next:** [Specific action with file:line reference]
-**Files to read:** [comma-separated list of files to read first]
+**Next:** Run `/handoff:run start` to begin
+**Files:** -
+**Context:** Fresh initialization
+```
+
+Done. Run `/handoff:run start` to begin first session.
+
+---
+
+## START
+
+If `$ARGUMENTS` is empty or = "start":
+
+### Phase 1: Establish Timeline
+
+```bash
+ls -1 .handoff/sessions/*.md 2>/dev/null | sort -r | head -1
+```
+
+Extract timestamp from filename (`YYYY-MM-DD-HHMM.md`).
+If no sessions, this is first start - use all available history.
+
+### Phase 2: Gather State
+
+**2a. Project Identity**
+```
+Read .handoff/CONTEXT.md
+```
+Extract: stack, commands, critical paths, patterns, gotchas.
+
+**2b. Last Handoff State**
+```
+Read .handoff/HANDOFF.md
+```
+Extract: severity, health status, done, failed, blockers, watch-out-for, resume point.
+
+**2c. Current Git State**
+```bash
+git branch --show-current
+git status -s | head -20
+```
+
+**2d. Commits Since Last Session**
+```bash
+git log --since="YYYY-MM-DD HH:MM" --format="%h %s%n%b" 2>/dev/null
+```
+If no session history, use `git log -10 --format="%h %s%n%b"`.
+
+**2e. PR Activity Since Last Session**
+```bash
+# Currently open
+gh pr list --state=open --json number,title,body,headRefName 2>/dev/null
+
+# Merged since
+gh pr list --state=merged --search "merged:>YYYY-MM-DD" --json number,title,body 2>/dev/null
+
+# Opened since
+gh pr list --state=all --search "created:>YYYY-MM-DD" --json number,title,body,state 2>/dev/null
+```
+
+**2f. Linear Issues (if configured)**
+```
+mcp__plugin_linear_linear__list_issues
+```
+Filter to issues updated since last session.
+
+### Phase 3: Assess Current Health
+
+Check if state has drifted since handoff:
+- Did git status change? (new commits from elsewhere?)
+- Are there uncommitted changes not in handoff?
+
+### Phase 4: Output Read-Back
+
+```
+╔══════════════════════════════════════════════════════════════╗
+║  HANDOFF RECEIVED                                            ║
+╠══════════════════════════════════════════════════════════════╣
+║  Project: [name]                                             ║
+║  Stack: [from CONTEXT.md]                                    ║
+║  Severity: [🔴 CRITICAL | 🟡 IN PROGRESS | 🟢 READY]         ║
+╚══════════════════════════════════════════════════════════════╝
+
+SINCE LAST SESSION ([date], [N] days ago)
+├─ Commits: [N]
+├─ PRs: [N] merged, [N] opened, [N] open
+└─ Issues: [N] updated
+
+HEALTH AT HANDOFF
+├─ Build: [✓|✗|⏸️]
+├─ Tests: [✓ N/N | ✗ N failed | ⏸️]
+└─ Lint: [✓|✗|⏸️]
+
+CURRENT STATE
+├─ Branch: [branch]
+├─ Status: [clean | N modified, N untracked]
+└─ Drift: [none | ⚠️ changed since handoff]
+
+⚠️  WATCH OUT FOR
+[bulleted list from HANDOFF.md]
+
+🚫 BLOCKERS ([N])
+[bulleted list from HANDOFF.md]
+
+❌ FAILED (Don't Retry)
+[list of failed items with reasons]
+
+▶️  RESUME
+[Next action from HANDOFF.md]
+[Files to read]
+[Context/reasoning]
+
+────────────────────────────────────────────────────────────────
+Ready. What would you like to work on?
+```
+
+**Context loaded. Ready to proceed with user's task.**
+
+---
+
+## END
+
+If `$ARGUMENTS` = "end":
+
+### Phase 1: Archive Current State
+
+```bash
+cp .handoff/HANDOFF.md ".handoff/sessions/$(date +%Y-%m-%d-%H%M).md"
+```
+
+### Phase 2: Capture Health Status
+
+Run health checks using commands from CONTEXT.md:
+
+```bash
+# Build (capture exit code and last 5 lines)
+npm run build 2>&1 | tail -5; echo "EXIT:$?"
+
+# Tests (capture exit code and summary)
+npm run test 2>&1 | tail -10; echo "EXIT:$?"
+
+# Lint (capture exit code and issues)
+npm run lint 2>&1 | tail -5; echo "EXIT:$?"
+```
+
+Detect package manager from lockfile:
+- `bun.lockb` → bun
+- `pnpm-lock.yaml` → pnpm
+- `yarn.lock` → yarn
+- `package-lock.json` → npm
+
+### Phase 3: Capture Git State
+
+```bash
+git branch --show-current
+git status -s | head -20
+git log -5 --format="%h %s"
+```
+
+### Phase 4: Analyze Session (Automated)
+
+**Infer from conversation context - DO NOT ASK USER:**
+
+1. **Severity** - Derive from health checks:
+   - 🔴 CRITICAL - Build failing OR tests failing with blocking errors
+   - 🟡 IN PROGRESS - Tests failing OR uncommitted work OR mid-feature
+   - 🟢 READY - Build ✓, Tests ✓, Lint ✓, git clean
+
+2. **Done** - Extract from session:
+   - Commits made this session (from git log)
+   - PRs created/merged
+   - Files successfully modified
+   - Features/fixes completed
+
+3. **Failed** - Extract from session:
+   - Commands that returned non-zero exit codes
+   - Error messages encountered
+   - Approaches that were abandoned
+   - ALWAYS include: Tried / Error / Why / Need
+
+4. **Blockers** - Extract from session:
+   - External dependencies mentioned as unavailable
+   - Permissions/credentials that were missing
+   - Decisions that couldn't be made
+   - APIs/services that were down
+
+5. **Watch Out For** - Extract from session:
+   - Gotchas discovered (things that surprised us)
+   - Workarounds that were needed
+   - Environment-specific behaviors
+   - Edge cases encountered
+
+6. **Resume Point** - Derive from session:
+   - If mid-feature: next logical step in current work
+   - If blocked: what to do when blocker resolves
+   - If complete: next item from backlog/issues
+   - ALWAYS include specific file:line when possible
+
+### Phase 5: Write HANDOFF.md
+
+```markdown
+# Handoff
+
+> Session: [YYYY-MM-DD HH:MM]
+> Severity: [🔴 CRITICAL | 🟡 IN PROGRESS | 🟢 READY]
+
+## Health
+| Check | Status | Detail |
+|-------|--------|--------|
+| Build | [✓\|✗\|⏸️] | [pass/fail/error message] |
+| Tests | [✓\|✗\|⏸️] | [N/N passing or failure info] |
+| Lint | [✓\|✗\|⏸️] | [clean/N warnings/N errors] |
+
+## Git
+- Branch: [branch]
+- Status: [clean/dirty]
+- Last commits:
+  ```
+  [hash] [message]
+  [hash] [message]
+  [hash] [message]
+  ```
+
+## Done
+- [x] [Concrete accomplishment with PR/commit ref]
+- [x] [Another accomplishment]
+
+## Failed
+### [Issue Name]
+- **Tried:** [What was attempted]
+- **Error:** [Exact error message]
+- **Why:** [Root cause analysis]
+- **Need:** [What would fix it]
+
+## Blockers
+- [ ] [Blocker with context]
+- [ ] [Another blocker]
+
+## Watch Out For
+- [Gotcha or warning]
+- [Another gotcha]
+
+## Resume
+**Next:** [Specific action at file:line]
+**Files:** [comma-separated list of files to read first]
 **Context:** [Why this is the right next step]
-
-Write the complete updated file."
 ```
 
-### Agent 5: Update CONTEXT.md (opus)
-```
-Task(subagent_type="general-purpose", model="opus", run_in_background=true):
-"Review if .handoff/CONTEXT.md needs updates:
+### Phase 6: Validate Handoff Quality
 
-Check for:
-1. Stack version changes (from agent 2)
-2. New 'What Never Works' discoveries
-3. New patterns or architecture changes
-4. New commands or workflows
+**REQUIRED (fail if missing):**
+- [ ] Severity is set
+- [ ] Health status captured
+- [ ] Resume has specific file:line
+- [ ] Resume has files to read
+- [ ] If failures exist, they have root cause analysis
 
-Only update if there are meaningful changes.
-If updating, preserve existing content and add new sections.
+**WARNINGS:**
+- [ ] File exceeds 100 lines (bloat risk)
+- [ ] Resume is vague ("continue working on X")
+- [ ] No watch-out-for items (really nothing learned?)
+- [ ] Health checks all skipped
 
-Return: 'No updates needed' or the specific changes made."
-```
-
-**Then:**
-```
-⏳ Phase 2/5: Agents working in parallel...
-```
-1. Poll all agents with TaskOutput
+### Phase 7: Confirm
 
 ```
-✅ Phase 3/5: All agents complete. Validating quality...
+╔══════════════════════════════════════════════════════════════╗
+║  HANDOFF COMPLETE                                            ║
+╠══════════════════════════════════════════════════════════════╣
+║  Archived: sessions/[timestamp].md                           ║
+║  Severity: [emoji + label]                                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+HEALTH
+├─ Build: [status]
+├─ Tests: [status]
+└─ Lint: [status]
+
+SESSION SUMMARY
+├─ Done: [N] items
+├─ Failed: [N] items (documented)
+├─ Blockers: [N] active
+└─ Watch-outs: [N] added
+
+RESUME POINT
+[Next action]
+
+────────────────────────────────────────────────────────────────
+Safe to end session.
 ```
-2. **Launch validation agent (opus):**
-   ```
-   Task(subagent_type="general-purpose", model="opus", run_in_background=false):
-   "Validate handoff quality. Read .handoff/HANDOFF.md and check:
-
-   REQUIRED (fail if missing):
-   - Resume section has specific file:line reference
-   - Files to read list is non-empty
-   - Status is one of: 🟢 🟡 🔴
-
-   WARNINGS (report but don't fail):
-   - File exceeds 120 lines (bloat risk)
-   - Resume is vague ('continue working on X')
-   - No failures documented despite errors in session
-
-   Return: PASS with summary, or FAIL with specific issues to fix."
-   ```
-3. If validation FAILS: Fix issues before proceeding
-
-```
-📝 Phase 4/5: Verifying files updated...
-```
-4. Verify HANDOFF.md was updated
-5. Confirm session archived to `.handoff/sessions/`
-
-```
-🎉 Phase 5/5: Session archived successfully
-```
-6. **Present summary to user:**
-   ```
-   ✅ Session Archived
-
-   Done: [count] items
-   Failed: [count] items (documented)
-   Resume: [specific action]
-
-   Safe to end session.
-   ```
 
 ---
 
-## Model Selection
+## STATUS
 
-| Task | Model | Why |
-|------|-------|-----|
-| Git, gh, packages | sonnet | Fast, structured data |
-| Issue queries | sonnet | Structured data |
-| Analysis, writing | opus | Quality reasoning |
+If `$ARGUMENTS` = "status":
+
+Quick check, no health runs:
+
+```
+Read .handoff/HANDOFF.md
+```
+
+Output:
+```
+Severity: [emoji]
+Branch: [branch]
+Health: Build [status] | Tests [status] | Lint [status]
+Blockers: [N]
+Resume: [next action]
+```
 
 ---
 
-## Anti-Bloat Guidelines
+## Severity Guide
 
-**DO include:**
-- Full commit messages (body, not just subject)
-- Full PR bodies
-- Specific failure details with root cause
-- Files with line numbers
-- Exact resume actions
-
-**DON'T include:**
-- File contents (AI can read on demand)
-- More than 10 commits
-- Historical sessions in main files
-- Verbose explanations
-
-**Size targets:**
-- CONTEXT.md: ~100-150 lines
-- HANDOFF.md: ~80-120 lines
+| Level | When | Meaning |
+|-------|------|---------|
+| 🔴 CRITICAL | Production down, data loss risk, security issue | Drop everything, fix now |
+| 🟡 IN PROGRESS | Mid-feature, tests failing, WIP | Continue current work |
+| 🟢 READY | All green, clean state | Pick up new work |
 
 ---
 
-## Format Examples
+## Health Check Commands
 
-### Failure Documentation
+Detect from CONTEXT.md or infer from lockfile:
 
-**Bad:**
-```
-❌ Auth didn't work
-```
+| Lockfile | Build | Test | Lint |
+|----------|-------|------|------|
+| bun.lockb | `bun run build` | `bun test` | `bun run lint` |
+| package-lock.json | `npm run build` | `npm test` | `npm run lint` |
+| pnpm-lock.yaml | `pnpm build` | `pnpm test` | `pnpm lint` |
+| yarn.lock | `yarn build` | `yarn test` | `yarn lint` |
 
-**Good:**
-```
-### ❌ JWT token refresh
-- **Attempted:** Added refresh logic in useAuth hook
-- **Error:** Token expired still appears after refresh
-- **Why:** Refresh happens async, component re-renders before token updates
-- **Would need:** Suspense boundary or loading state during refresh
-```
+---
 
-### Resume Point
+## Anti-Patterns
 
-**Bad:**
-```
-**Next:** Continue working on auth
-```
+**DON'T:**
+- Skip health checks on END (you're leaving blind)
+- Write vague resume points ("keep working on auth")
+- Omit failure root cause (next session repeats mistake)
+- Ignore blockers (they don't disappear)
+- Leave severity at 🟢 when tests are failing
 
-**Good:**
-```
-**Next:** Add Suspense boundary around AuthProvider in app/_layout.tsx:12
-**Files to read:** lib/auth.ts:45-60, app/_layout.tsx
-**Context:** Token refresh is async, need to prevent render during refresh
-```
+**DO:**
+- Capture exact error messages in failures
+- Reference specific file:line in resume
+- Document gotchas immediately when discovered
+- Be honest about severity
+- Validate handoff before ending
