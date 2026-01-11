@@ -1,45 +1,39 @@
 # Changelog
 
-## [2.0.0] - 2026-01-11
+## [1.0.0] - 2026-01-11
 
-Medical-grade handoff system. SBAR framework. Zero agents.
+First stable release. Skill-first architecture with SBAR framework.
 
-### Added
+### Features
+- **SBAR framework**: Structured handoffs (Situation, Background, Assessment, Recommendation)
 - **Severity levels**: 🔴 CRITICAL, 🟡 IN PROGRESS, 🟢 READY
 - **Health checks**: Build/test/lint status captured on END
-- **Watch Out For**: Anticipatory guidance section
-- **Blockers**: Explicit blocking issues tracking
 - **Drift detection**: Detect if state changed since last handoff
-- **Read-back confirmation**: Structured output on START, wait for confirmation
 - **Handoff validation**: Required fields checked before END completes
-- **SBAR framework**: Situation, Background, Assessment, Recommendation
+- **Session archiving**: Timestamped archives in `.handoff/sessions/`
 
-### Changed
-- **No agents**: All operations inline (was 4-5 background agents)
-- **Scoped queries**: All data fetched since last session only
-- **Failed section**: Now requires Tried/Error/Why/Need structure
-- **Resume section**: Now requires Next/Files/Context structure
-- **Timeline-based**: Uses session archive timestamps, not arbitrary limits
+### Architecture
+- **Skill as source of truth**: `/handoff` skill contains full implementation
+- **Thin agent wrapper**: Agent uses `tools: Skill` to invoke `/handoff`
+- **Inline execution**: No background agents, direct tool calls
+- **Timeline-scoped**: All queries scoped to "since last session"
 
-### Removed
-- `handoff-explorer` agent (use built-in Explore)
-- Background agent spawning
-- Arbitrary commit/PR limits
-
-### Token Impact
-| Operation | v1.0 | v2.0 |
-|-----------|------|------|
-| START | ~55k tokens | ~5-10k tokens |
-| Definition | ~4k tokens | ~1.5k tokens |
+### HANDOFF.md Structure
+- Severity (required)
+- Health table (Build/Tests/Lint)
+- Git state
+- Done (concrete items with refs)
+- Failed (with Tried/Error/Why/Need)
+- Blockers
+- Watch Out For
+- Resume (Next + Files + Context)
 
 ---
 
-## [1.0.0] - 2026-01-09
+## [0.x] - 2026-01-05 to 2026-01-10
 
-Initial release with parallel agent architecture.
+Alpha releases. Experimental parallel agent architecture.
 
-### Features
-- 4 parallel agents for START
-- 5 parallel agents for END
-- CONTEXT.md and HANDOFF.md structure
-- Session archiving
+- 4-5 background agents for START/END operations
+- High token usage (~55k per START)
+- Command-based invocation (`/handoff:run`)
