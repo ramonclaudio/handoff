@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Medical-grade session handoff - gather context or archive state. Use when user mentions handoff, session continuity, saving progress, or resuming work.
+description: Session continuity for Claude Code. Gather context at start, archive state at end. Use when user mentions handoff, saving progress, or resuming work.
 argument-hint: start|end|status|init
 allowed-tools:
   - Bash(git:*)
@@ -23,7 +23,7 @@ allowed-tools:
 
 # Handoff
 
-Medical-grade session continuity. Like hospital shift changes - bad handoffs kill projects.
+Session continuity for Claude Code. Like hospital shift changes, bad handoffs lose context.
 
 ## Argument: $ARGUMENTS
 

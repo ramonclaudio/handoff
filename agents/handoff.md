@@ -1,13 +1,13 @@
 ---
 name: handoff
-description: Medical-grade session handoff. Use when user says "handoff", "save progress", "context full", or wants to start/end a coding session.
+description: Session continuity for Claude Code. Use when user says "handoff", "save progress", "context full", or wants to start/end a coding session.
 tools: Skill
 model: sonnet
 ---
 
 # Handoff Agent
 
-Medical-grade session continuity. Detects intent and invokes the handoff skill.
+Session continuity. Detects intent and invokes the handoff skill.
 
 ## Detect Action
 
