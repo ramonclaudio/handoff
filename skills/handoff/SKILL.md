@@ -25,6 +25,7 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
+  - TodoWrite
   # External integrations
   - mcp__plugin_linear_linear__list_issues
 ---
@@ -252,7 +253,15 @@ Check if state has drifted since handoff:
 - Did git status change? (new commits from elsewhere?)
 - Are there uncommitted changes not in handoff?
 
-### Phase 5: Output Read-Back
+### Phase 5: Clear Previous Handoff Todo
+
+If there's a pending todo from a previous handoff, mark it complete:
+
+```
+TodoWrite([])  # Clear the handoff resume todo - we're starting fresh
+```
+
+### Phase 6: Output Read-Back
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
@@ -474,7 +483,23 @@ Write updated CONTEXT.md with:
 - [ ] No watch-out-for items (really nothing learned?)
 - [ ] Health checks all skipped
 
-### Phase 8: Confirm
+### Phase 8: Write Resume to Todo List
+
+Use TodoWrite to persist the resume point for the next session:
+
+```
+TodoWrite([
+  {
+    "content": "[Resume point from HANDOFF.md]",
+    "status": "pending",
+    "activeForm": "Resuming: [brief description]"
+  }
+])
+```
+
+This makes the resume point visible in Claude Code's todo tracking, so the next session starts with clear context.
+
+### Phase 9: Confirm
 
 ```
 ╔══════════════════════════════════════════════════════════════╗
