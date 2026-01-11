@@ -11,8 +11,7 @@
     {
       "name": "handoff",
       "description": "Capture and restore session context with SBAR-structured handoffs. Tracks what's done, what failed, and where to resume.",
-      "version": "1.0.0",
-      "source": "."
+      "version": "1.0.0"
     }
   ]
 }
