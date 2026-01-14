@@ -14,9 +14,11 @@
 
 ---
 
-Claude has no memory between sessions. You remember what you were working on—Claude doesn't. This plugin is Claude's memory.
+Every Claude session starts fresh. You remember what you were working on yesterday - what got done, what broke, where you left off. Claude doesn't. This plugin fixes that.
 
-Handoff captures what's done, what failed (and why), what to watch out for, and exactly where to resume. Like a shift change at a hospital, bad handoffs lose context and waste time.
+Think hospital shift change. Doctors don't try to remember everything about every patient. They do structured handoffs: current status, what happened, what to watch for, what's next. Same idea here.
+
+Nothing fancy. Hope it's useful.
 
 ## Installation
 
@@ -26,7 +28,7 @@ Handoff captures what's done, what failed (and why), what to watch out for, and 
 
 ## Usage
 
-This plugin provides three ways to invoke handoff:
+Three ways to invoke:
 
 | Method | Example | When to use |
 |--------|---------|-------------|
@@ -82,24 +84,13 @@ Ask Claude to use the handoff agent for autonomous session management:
 5. Set severity and resume point
 6. Validate handoff quality
 
-## SBAR Framework
+## Severity
 
-Adapted from medical handoffs for structured context transfer:
-
-| Component | What it captures |
-|-----------|------------------|
-| **S**ituation | Severity + current git state |
-| **B**ackground | Project context + recent commits/PRs |
-| **A**ssessment | Health status + blockers + failures |
-| **R**ecommendation | Resume point + watch-out-for |
-
-## Severity Levels
-
-| Level | When | Meaning |
-|-------|------|---------|
-| 🔴 CRITICAL | Production down, security issue | Drop everything |
-| 🟡 IN PROGRESS | Mid-feature, tests failing | Continue current work |
-| 🟢 READY | All green, clean state | Pick up new work |
+| Level | Meaning |
+|-------|---------|
+| 🔴 CRITICAL | Production down, security issue |
+| 🟡 IN PROGRESS | Mid-feature, tests failing |
+| 🟢 READY | All green, clean state |
 
 ## Requirements
 
