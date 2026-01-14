@@ -1,7 +1,7 @@
 ---
 name: handoff
 description: Session continuity for Claude Code. Gather context at start, archive state at end. Use when user mentions handoff, saving progress, or resuming work.
-argument-hint: start|end|status|init
+argument-hint: start|end|init
 allowed-tools:
   # Git & GitHub
   - Bash(git:*)
@@ -530,35 +530,6 @@ RESUME POINT
 
 ────────────────────────────────────────────────────────────────
 Safe to end session.
-```
-
----
-
-## STATUS
-
-If `$ARGUMENTS` = "status":
-
-Quick check, no health runs:
-
-```
-Read .handoff/CONTEXT.md
-Read .handoff/HANDOFF.md
-```
-
-**Check for drift:**
-```bash
-# Verify Structure section matches reality
-# List any missing or new files
-```
-
-Output:
-```
-Severity: [emoji]
-Branch: [branch]
-Health: Build [status] | Tests [status] | Lint [status]
-Blockers: [N]
-Context: [drift status - ✓ current | ⚠️ stale]
-Resume: [next action]
 ```
 
 ---

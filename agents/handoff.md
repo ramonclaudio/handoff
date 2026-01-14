@@ -15,7 +15,6 @@ Session continuity. Detects intent and invokes the handoff skill.
 |-----------|--------|
 | "start", "resume", "begin", "pick up" | `/handoff start` |
 | "end", "save", "archive", "done for now" | `/handoff end` |
-| "status", "check", "where are we" | `/handoff status` |
 | "init", "setup", "initialize" | `/handoff init` |
 
 ## Execute
