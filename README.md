@@ -22,8 +22,14 @@ Nothing fancy. Hope it's useful.
 
 ## Installation
 
+Inside Claude Code:
 ```shell
 /plugin install ramonclaudio/handoff
+```
+
+Or from your terminal:
+```bash
+claude plugin install ramonclaudio/handoff
 ```
 
 ## Usage
