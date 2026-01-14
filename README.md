@@ -76,14 +76,14 @@ Ask Claude to use the handoff agent for autonomous session management:
 ### START
 
 1. Find last session timestamp
-2. Read CONTEXT.md and HANDOFF.md
+2. Read `CONTEXT.md` and `HANDOFF.md`
 3. Get commits/PRs/issues since last session
 4. Check for drift (state changed since handoff?)
 5. Output structured summary
 
 ### END
 
-1. Archive current HANDOFF.md
+1. Archive current `HANDOFF.md`
 2. Run health checks (build/test/lint)
 3. Capture git state
 4. Document: done, failed (with why), blockers, watch-outs
