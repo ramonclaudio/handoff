@@ -20,24 +20,43 @@ Handoff captures what's done, what failed (and why), what to watch out for, and 
 
 ## Installation
 
-| Method | Install | Invoke |
-|--------|---------|--------|
-| **Plugin** | `/plugin install handoff@ramonclaudio-handoff` | `/handoff start` |
-| **Skill** | `cp -r skills/handoff ~/.claude/skills/` | `/handoff start` |
-| **Agent** | `cp agents/handoff.md ~/.claude/agents/` | "Use handoff agent" |
+```shell
+/plugin install ramonclaudio/handoff
+```
 
 ## Usage
 
+This plugin provides three ways to invoke handoff:
+
+| Method | Example | When to use |
+|--------|---------|-------------|
+| **Command** | `/handoff start` | Explicit control |
+| **Skill** | Claude auto-invokes | Says "handoff", "save progress", "resume" |
+| **Agent** | "Use handoff agent" | Delegate to specialized agent |
+
+### Commands
+
+```shell
+/handoff init    # First time: create .handoff/ structure
+/handoff start   # Beginning of session: gather context
+/handoff end     # End of session: archive state
 ```
-init      Create .handoff/ structure
-start     Gather context and output session summary
-end       Run health checks, archive state, validate handoff
-status    Quick status check
-```
+
+### As a Skill
+
+Claude automatically invokes handoff when you mention:
+- "let's do a handoff", "save my progress", "context is full"
+- "pick up where we left off", "resume work", "start session"
+
+### As an Agent
+
+Ask Claude to use the handoff agent for autonomous session management:
+- "Use the handoff agent to save my progress"
+- "Have the handoff agent gather context"
 
 ## Structure
 
-```
+```text
 .handoff/
 ├── CONTEXT.md     # Project: stack, commands, critical paths, gotchas
 ├── HANDOFF.md     # Session: severity, health, done, failed, blockers, resume
