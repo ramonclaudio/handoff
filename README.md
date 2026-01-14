@@ -106,4 +106,4 @@ Ask Claude to use the handoff agent for autonomous session management:
 
 ## License
 
-MIT
+[MIT](LICENSE)
