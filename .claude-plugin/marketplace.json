@@ -5,14 +5,27 @@
     "email": "hello@ramonclaudio.com"
   },
   "metadata": {
-    "description": "Session continuity for Claude Code"
+    "description": "Session continuity for Claude Code.",
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "handoff",
       "source": "./",
-      "description": "Capture and restore session context with SBAR-structured handoffs. Tracks what's done, what failed, and where to resume.",
-      "version": "1.0.0"
+      "description": "Session continuity for Claude Code.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Ray",
+        "email": "hello@ramonclaudio.com"
+      },
+      "homepage": "https://github.com/ramonclaudio/handoff",
+      "repository": "https://github.com/ramonclaudio/handoff",
+      "license": "MIT",
+      "keywords": ["session", "continuity", "handoff", "context", "sbar"],
+      "category": "workflow",
+      "tags": ["productivity", "session-management", "context-preservation"],
+      "agents": ["./agents/handoff.md"],
+      "hooks": "./hooks/hooks.json"
     }
   ]
 }

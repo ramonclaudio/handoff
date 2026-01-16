@@ -177,7 +177,7 @@ If `$ARGUMENTS` is empty or = "start":
 ls -1 .handoff/sessions/*.md 2>/dev/null | sort -r | head -1
 ```
 
-Extract timestamp from filename (`YYYY-MM-DD-HHMM.md`).
+Session files use Claude session IDs (v1.1.0+) or timestamps (legacy).
 If no sessions, this is first start - use all available history.
 
 ### Phase 2: Validate CONTEXT.md
@@ -320,7 +320,7 @@ If `$ARGUMENTS` = "end":
 ### Phase 1: Archive Current State
 
 ```bash
-cp .handoff/HANDOFF.md ".handoff/sessions/$(date +%Y-%m-%d-%H%M).md"
+cp .handoff/HANDOFF.md ".handoff/sessions/${CLAUDE_SESSION_ID}.md"
 ```
 
 ### Phase 2: Capture Health Status
@@ -423,7 +423,7 @@ Write updated CONTEXT.md with:
 ```markdown
 # Handoff
 
-> Session: [YYYY-MM-DD HH:MM]
+> Session: ${CLAUDE_SESSION_ID}
 > Severity: [🔴 CRITICAL | 🟡 IN PROGRESS | 🟢 READY]
 
 ## Health
@@ -505,7 +505,7 @@ This makes the resume point visible in Claude Code's todo tracking, so the next 
 ╔══════════════════════════════════════════════════════════════╗
 ║  HANDOFF COMPLETE                                            ║
 ╠══════════════════════════════════════════════════════════════╣
-║  Archived: sessions/[timestamp].md                           ║
+║  Archived: sessions/${CLAUDE_SESSION_ID}.md                  ║
 ║  Severity: [emoji + label]                                   ║
 ╚══════════════════════════════════════════════════════════════╝
 
