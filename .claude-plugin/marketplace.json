@@ -23,7 +23,9 @@
       "license": "MIT",
       "keywords": ["session", "continuity", "handoff", "context", "sbar"],
       "category": "workflow",
-      "tags": ["productivity", "session-management", "context-preservation"]
+      "tags": ["productivity", "session-management", "context-preservation"],
+      "agents": ["./agents/handoff.md"],
+      "hooks": "./hooks/hooks.json"
     }
   ]
 }
