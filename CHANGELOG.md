@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0] - 2026-01-16
+
+Session ID integration. Requires Claude Code 2.1.9+.
+
+### Changed
+- Archive naming uses `${CLAUDE_SESSION_ID}` instead of timestamps
+- Session metadata includes session ID for correlation
+- Hook script parses and displays session ID
+
+### Why
+- Timestamps can collide (multiple sessions in same minute)
+- Session IDs enable direct correlation with Claude transcripts
+- No more guessing which archive matches which conversation
+
+---
+
 ## [1.0.0] - 2026-01-11
 
 First stable release. Skill-first architecture with SBAR framework.

@@ -75,7 +75,7 @@ Ask Claude to use the handoff agent for autonomous session management:
 
 ### START
 
-1. Find last session timestamp
+1. Find last session archive
 2. Read `CONTEXT.md` and `HANDOFF.md`
 3. Get commits/PRs/issues since last session
 4. Check for drift (state changed since handoff?)
@@ -100,7 +100,7 @@ Ask Claude to use the handoff agent for autonomous session management:
 
 ## Requirements
 
-- Claude Code 2.1+
+- Claude Code 2.1.9+ (uses `${CLAUDE_SESSION_ID}`)
 - Git
 - Optional: `gh` (GitHub CLI), Linear MCP
 
