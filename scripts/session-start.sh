@@ -1,33 +1,17 @@
 #!/usr/bin/env bash
 # Handoff SessionStart hook
-# Checks for handoff files and adds context to session
-#
-# Input (JSON via stdin):
-#   session_id, transcript_path, permission_mode, hook_event_name, source
-#
-# Output:
-#   Exit 0 with JSON for additionalContext
-#   stdout is added as context to the conversation
 
 set -e
 
-# Read JSON input from stdin (consume it even if we don't use it)
-cat > /dev/null
+# Parse session ID from JSON input
+INPUT=$(cat)
+SESSION_ID=$(echo "$INPUT" | grep -o '"session_id":"[^"]*"' | cut -d'"' -f4)
 
-# Check for handoff files in project root
 HANDOFF_DIR="${HANDOFF_DIR:-.handoff}"
 
 if [ -f "$HANDOFF_DIR/HANDOFF.md" ]; then
-    FOUND_HANDOFF="$HANDOFF_DIR"
-else
-    FOUND_HANDOFF=""
-fi
-
-# Output context as plain text (simpler than JSON, per docs recommendation)
-# "Plain text stdout (simpler): Any non-JSON text written to stdout is added as context"
-
-if [ -n "$FOUND_HANDOFF" ]; then
-    echo "📋 Handoff files detected at: $FOUND_HANDOFF"
+    echo "📋 Handoff files detected at: $HANDOFF_DIR"
+    [ -n "$SESSION_ID" ] && echo "Session: $SESSION_ID"
     echo "Run /handoff start to gather session context."
 else
     echo "💡 No handoff files found. Run /handoff init to set up session continuity."
