@@ -66,9 +66,10 @@ Ask Claude to use the handoff agent for autonomous session management:
 
 ```text
 .handoff/
-├── CONTEXT.md     # Project: stack, commands, critical paths, gotchas
-├── HANDOFF.md     # Session: severity, health, done, failed, blockers, resume
-└── sessions/      # Archived handoffs
+├── CONTEXT.md       # Project: stack, commands, critical paths, gotchas
+├── HANDOFF.md       # Session: severity, health, done, failed, blockers, resume
+├── .subagents.log   # Subagent activity during current session (auto-cleared on END)
+└── sessions/        # Archived handoffs by session ID
 ```
 
 ## How It Works
@@ -89,6 +90,7 @@ Ask Claude to use the handoff agent for autonomous session management:
 4. Document: done, failed (with why), blockers, watch-outs
 5. Set severity and resume point
 6. Validate handoff quality
+7. Create resume Task (persists to `~/.claude/tasks`)
 
 ## Severity
 
@@ -100,7 +102,7 @@ Ask Claude to use the handoff agent for autonomous session management:
 
 ## Requirements
 
-- Claude Code 2.1.9+ (uses `${CLAUDE_SESSION_ID}`)
+- Claude Code 2.1.16+ (uses Task system and `${CLAUDE_SESSION_ID}`)
 - Git
 - Optional: `gh` (GitHub CLI), Linear MCP
 

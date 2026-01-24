@@ -1,5 +1,29 @@
 # Changelog
 
+## [1.2.0] - 2026-01-24
+
+Task system migration and subagent tracking. Requires Claude Code 2.1.16+.
+
+### Changed
+- **Task system**: Replaced deprecated `TodoWrite` with new Task tools (`TaskCreate`, `TaskUpdate`, `TaskGet`, `TaskList`)
+- Resume points now persist in `~/.claude/tasks` with `handoff: true` metadata
+- Previous session tasks marked complete on START instead of cleared
+
+### Added
+- **Subagent tracking**: New `SubagentStart`/`SubagentStop` hooks log subagent activity to `.handoff/.subagents.log`
+- START phase now shows which subagents ran during previous session
+- END phase clears subagent log after archiving
+
+### Fixed
+- Session end message now shows `/handoff end` instead of legacy `/handoff:run end`
+
+### Why
+- `TodoWrite` deprecated in Claude Code 2.1.16 in favor of persistent Task system
+- Tasks support dependencies, blockers, and cross-session persistence in `~/.claude/tasks`
+- Subagent activity tracking provides richer context for complex sessions
+
+---
+
 ## [1.1.0] - 2026-01-16
 
 Session ID integration. Requires Claude Code 2.1.9+.
