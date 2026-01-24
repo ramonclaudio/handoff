@@ -25,7 +25,11 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
-  - TodoWrite
+  # Task management (cross-session persistence)
+  - TaskCreate
+  - TaskUpdate
+  - TaskGet
+  - TaskList
   # External integrations
   - mcp__plugin_linear_linear__list_issues
 ---
@@ -247,18 +251,30 @@ mcp__plugin_linear_linear__list_issues
 ```
 Filter to issues updated since last session.
 
+**3g. Subagent Activity (if present)**
+```bash
+cat .handoff/.subagents.log 2>/dev/null | tail -20
+```
+Shows which subagents ran during previous session (logged by SubagentStart/SubagentStop hooks).
+
 ### Phase 4: Assess Current Health
 
 Check if state has drifted since handoff:
 - Did git status change? (new commits from elsewhere?)
 - Are there uncommitted changes not in handoff?
 
-### Phase 5: Clear Previous Handoff Todo
+### Phase 5: Complete Previous Handoff Tasks
 
-If there's a pending todo from a previous handoff, mark it complete:
+Check for pending handoff tasks from previous session and mark them complete:
 
 ```
-TodoWrite([])  # Clear the handoff resume todo - we're starting fresh
+TaskList  # Check for existing handoff tasks
+```
+
+For any tasks with `handoff: true` metadata that are still pending, mark them complete:
+
+```
+TaskUpdate(taskId: "[id]", status: "completed")  # Previous resume point - session started
 ```
 
 ### Phase 6: Output Read-Back
@@ -321,6 +337,11 @@ If `$ARGUMENTS` = "end":
 
 ```bash
 cp .handoff/HANDOFF.md ".handoff/sessions/${CLAUDE_SESSION_ID}.md"
+```
+
+Clear subagent activity log (will be regenerated during next session):
+```bash
+rm -f .handoff/.subagents.log 2>/dev/null
 ```
 
 ### Phase 2: Capture Health Status
@@ -483,21 +504,20 @@ Write updated CONTEXT.md with:
 - [ ] No watch-out-for items (really nothing learned?)
 - [ ] Health checks all skipped
 
-### Phase 8: Write Resume to Todo List
+### Phase 8: Create Resume Task
 
-Use TodoWrite to persist the resume point for the next session:
+Use TaskCreate to persist the resume point for the next session:
 
 ```
-TodoWrite([
-  {
-    "content": "[Resume point from HANDOFF.md]",
-    "status": "pending",
-    "activeForm": "Resuming: [brief description]"
-  }
-])
+TaskCreate(
+  subject: "[Resume point from HANDOFF.md]",
+  description: "[Context and files to read]",
+  activeForm: "Resuming: [brief description]",
+  metadata: { "handoff": true, "session": "${CLAUDE_SESSION_ID}" }
+)
 ```
 
-This makes the resume point visible in Claude Code's todo tracking, so the next session starts with clear context.
+This creates a persistent task visible in Claude Code's task list (`~/.claude/tasks`). The `handoff: true` metadata identifies it as a handoff resume point for the next session to mark complete.
 
 ### Phase 9: Confirm
 
